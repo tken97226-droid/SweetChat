@@ -1,116 +1,158 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SweetChat</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SweetChat - AI Character Companions</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Header -->
-        <header class="main-header">
-            <div class="logo-area">
-                <span class="logo-icon">🍓</span>
-                <h2>SweetChat</h2>
-            </div>
-            <button id="global-settings-btn" class="icon-btn">⚙️</button>
-        </header>
 
-        <!-- Search Bar -->
-        <div class="search-bar-container">
-            <input type="text" placeholder="အမည် သို့မဟုတ် ဝိသေသဖြင့် ရှာဖွေပါ..." class="search-input">
+  <!-- Main Container -->
+  <div class="app-container">
+    
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="logo">
+        <span class="logo-icon">🍓</span>
+        <h1>SweetChat</h1>
+      </div>
+      <button id="global-settings-btn" class="icon-btn" title="API Settings">⚙️</button>
+    </header>
+
+    <!-- Character View -->
+    <main id="character-view" class="view">
+      
+      <!-- Search & Filter Area -->
+      <div class="search-section">
+        <div class="search-bar">
+          <input type="text" placeholder="အမည် သို့မဟုတ် ဝိသေသဖြင့် ရှာဖွေပါ...">
+        </div>
+      </div>
+
+      <!-- Section Title -->
+      <div class="section-header">
+        <h2>တရားဝင် အဖော်များ</h2>
+        <span class="count-badge">3 ယောက် ရှိသည်</span>
+      </div>
+
+      <!-- Character Grid -->
+      <div class="character-grid">
+        
+        <!-- Suzuki Card -->
+        <div class="char-card">
+          <div class="char-avatar-container">
+            <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Suzuki" class="char-avatar-img" alt="Suzuki">
+          </div>
+          <div class="char-info">
+            <div class="char-header">
+              <h3 class="char-name">♀ Suzuki</h3>
+              <span class="char-badge">အဆင့် ၁</span>
+            </div>
+            <p class="char-tagline">ရွှင်ပြုံးပြီး ချစ်စရာကောင်းသော အထက်တန်းကျောင်းသူလေး။</p>
+            <p class="char-desc">စကားပြောရတာ ကြိုက်တယ်။ စွမ်းအင်အပြည့်နဲ့ အမြဲတမ်း ပျော်ပျော်နေတတ်သူ...</p>
+            <div class="char-tags">
+              <span class="tag">တက်ကြွသူ</span>
+              <span class="tag">ချိုသာ</span>
+              <span class="tag">ကျောင်းသူ</span>
+            </div>
+            <div class="char-actions">
+              <button class="btn btn-profile">ပါရိုဖိုင်</button>
+              <button class="btn btn-chat" onclick="openChat('Suzuki', 'https://api.dicebear.com/7.x/adventurer/svg?seed=Suzuki', 'Highschooler')">💬 စတင်မည်</button>
+            </div>
+          </div>
         </div>
 
-        <!-- Character Selection Grid -->
-        <div id="character-view" class="view">
-            <div class="section-title">
-                <span>တရားဝင် အဖော်များ</span>
-                <span class="badge">2 ယောက် ရှိသည်</span>
+        <!-- Aria Card -->
+        <div class="char-card">
+          <div class="char-avatar-container">
+            <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Aria" class="char-avatar-img" alt="Aria">
+          </div>
+          <div class="char-info">
+            <div class="char-header">
+              <h3 class="char-name">♀ Aria</h3>
+              <span class="char-badge">အဆင့် ၂</span>
             </div>
-
-            <main class="character-grid">
-                <!-- Suzuki Card -->
-                <div class="char-card" onclick="openChat('Suzuki', 'https://api.dicebear.com/7.x/adventurer/svg?seed=Suzuki', 'ရွှင်မြူးပြီး ချစ်စရာကောင်းသူ')">
-                    <div class="char-card-header">
-                        <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Suzuki" class="char-avatar-img" alt="Suzuki">
-                        <div class="char-details">
-                            <div class="char-name-row">
-                                <span class="gender-icon female">♀</span>
-                                <h3>Suzuki</h3>
-                                <span class="level-tag">အဆင့် ၁</span>
-                            </div>
-                            <p class="char-subtitle">ရွှင်မြူးပြီး ချစ်စရာကောင်းသော အထက်တန်းကျောင်းသူလေး။</p>
-                            <p class="char-desc">စကားပြောရတာ ကြိုက်တယ်၊ စွမ်းအင်အပြည့်နဲ့ အမြဲတမ်း ပျော်ပျော်နေတတ်သူ...</p>
-                        </div>
-                    </div>
-                    <div class="char-tags">
-                        <span class="tag">တက်ကြွသူ</span>
-                        <span class="tag">ချိုသာ</span>
-                        <span class="tag">ကျောင်းသူ</span>
-                    </div>
-                    <div class="char-card-footer">
-                        <span class="profile-link">👤 ပရိုဖိုင်</span>
-                        <button class="chat-start-btn">💬 စတင်မည်</button>
-                    </div>
-                </div>
-
-                <!-- Aria Card -->
-                <div class="char-card" onclick="openChat('Aria', 'https://api.dicebear.com/7.x/adventurer/svg?seed=Aria', 'အေးဆေးတည်ငြိမ်သူ')">
-                    <div class="char-card-header">
-                        <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Aria" class="char-avatar-img" alt="Aria">
-                        <div class="char-details">
-                            <div class="char-name-row">
-                                <span class="gender-icon female">♀</span>
-                                <h3>Aria</h3>
-                                <span class="level-tag">အဆင့် ၂</span>
-                            </div>
-                            <p class="char-subtitle">အေးဆေးတည်ငြိမ်ပြီး ဗဟုသုတကြွယ်ဝသူ။</p>
-                            <p class="char-desc">စာအုပ်ဖတ်ရတာ ကြိုက်ပြီး သင့်ရဲ့ အခက်အခဲတွေကို အမြဲကူညီပေးမယ့်သူ...</p>
-                        </div>
-                    </div>
-                    <div class="char-tags">
-                        <span class="tag">အေးဆေးသူ</span>
-                        <span class="tag">ဗဟုသုတ</span>
-                        <span class="tag">ကူညီတတ်သူ</span>
-                    </div>
-                    <div class="char-card-footer">
-                        <span class="profile-link">👤 ပရိုဖိုင်</span>
-                        <button class="chat-start-btn">💬 စတင်မည်</button>
-                    </div>
-                </div>
-            </main>
+            <p class="char-tagline">အေးဆေးတည်ငြိမ်ပြီး ဗဟုသုတကြွယ်ဝသူ။</p>
+            <p class="char-desc">စာအုပ်ဖတ်ရတာ ကြိုက်ပြီး သင့်ရဲ့ အခက်အခဲတွေကို အမြဲကူညီပေးမယ့်သူ...</p>
+            <div class="char-tags">
+              <span class="tag">အေးဆေးသူ</span>
+              <span class="tag">ဗဟုသုတ</span>
+              <span class="tag">ကူညီတတ်သူ</span>
+            </div>
+            <div class="char-actions">
+              <button class="btn btn-profile">ပါရိုဖိုင်</button>
+              <button class="btn btn-chat" onclick="openChat('Aria', 'https://api.dicebear.com/7.x/adventurer/svg?seed=Aria', 'Wise Assistant')">💬 စတင်မည်</button>
+            </div>
+          </div>
         </div>
 
-        <!-- Chat Room View -->
-        <div id="chat-view" class="view hidden">
-            <div class="chat-header">
-                <button onclick="showCharacterSelection()" class="back-btn">⬅️</button>
-                <img id="chat-avatar-img" src="" class="chat-header-avatar">
-                <h3 id="chat-name">Suzuki</h3>
+        <!-- Waguri Card -->
+        <div class="char-card">
+          <div class="char-avatar-container">
+            <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Waguri" class="char-avatar-img" alt="Waguri">
+          </div>
+          <div class="char-info">
+            <div class="char-header">
+              <h3 class="char-name">♀ Waguri</h3>
+              <span class="char-badge">အဆင့် ၃</span>
             </div>
-            <div id="chat-box" class="chat-box"></div>
-            <div class="chat-input-area">
-                <input type="text" id="user-input" placeholder="Message..." autocomplete="off">
-                <button id="send-btn">Send</button>
+            <p class="char-tagline">နွေးထွေးဖော်ရွေပြီး မုန့်ကြိုက်သော ကျောင်းသူလေး</p>
+            <p class="char-desc">အမြဲတမ်း ပြုံးပြုံးလေးနဲ့ နွေးထွေးစွာ စကားပြောတတ်ပြီး မုန့်အချိုပွဲတွေကို နှစ်သက်သူ...</p>
+            <div class="char-tags">
+              <span class="tag">ဖော်ရွေ</span>
+              <span class="tag">ချိုသာ</span>
+              <span class="tag">မုန့်ကြိုက်သူ</span>
             </div>
+            <div class="char-actions">
+              <button class="btn btn-profile">ပါရိုဖိုင်</button>
+              <button class="btn btn-chat" onclick="openChat('Waguri', 'https://api.dicebear.com/7.x/adventurer/svg?seed=Waguri', 'Charming Student')">💬 စတင်မည်</button>
+            </div>
+          </div>
         </div>
+
+      </div>
+    </main>
+
+    <!-- Chat View (Hidden by Default) -->
+    <main id="chat-view" class="view hidden">
+      <div class="chat-header">
+        <button id="close-chat-btn" class="icon-btn">←</button>
+        <div class="chat-char-details">
+          <img id="chat-char-avatar" src="" alt="Avatar">
+          <div>
+            <h3 id="chat-char-name">Character Name</h3>
+            <span class="status-online">● Online</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="chat-messages" class="chat-messages">
+        <!-- Messages will be injected here -->
+      </div>
+
+      <div class="chat-input-area">
+        <input type="text" id="user-input" placeholder="စာရိုက်ပါ...">
+        <button id="send-btn" class="btn-send">▶</button>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- API Key Modal -->
+  <div id="api-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Gemini API Key ထည့်သွင်းပါ</h3>
+      <p>SweetChat ကို အသုံးပြုရန် သင်၏ Gemini API Key လိုအပ်ပါသည်။</p>
+      <input type="password" id="api-key-input" placeholder="AIzaSy...">
+      <div class="modal-actions">
+        <button id="save-api-btn" class="btn btn-chat">သိမ်းဆည်းမည်</button>
+      </div>
     </div>
+  </div>
 
-    <!-- Modal -->
-    <div id="settings-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3>API Key Settings</h3>
-            <p>Gemini API Key ထည့်ပါ</p>
-            <input type="password" id="api-key-input" placeholder="Enter API Key">
-            <div class="modal-buttons">
-                <button id="save-key-btn">Save</button>
-                <button id="close-modal-btn">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
-</html>
-
+    </html>
+    
