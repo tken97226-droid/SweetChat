@@ -1,6 +1,7 @@
 // Global State
 let currentCharacter = "";
 let apiKey = localStorage.getItem("gemini_api_key") || "";
+let selectedModel = localStorage.getItem("gemini_model") || "gemini-2.5-flash";
 
 // DOM Elements
 const characterView = document.getElementById("character-view");
@@ -13,6 +14,7 @@ const sendBtn = document.getElementById("send-btn");
 
 const settingsModal = document.getElementById("settings-modal");
 const globalSettingsBtn = document.getElementById("global-settings-btn");
+const modelSelect = document.getElementById("model-select");
 const apiKeyInput = document.getElementById("api-key-input");
 const saveKeyBtn = document.getElementById("save-key-btn");
 const deleteKeyBtn = document.getElementById("delete-key-btn");
@@ -76,7 +78,8 @@ async function sendMessage() {
     const loadingMsg = appendMessage("ai", "စာရိုက်နေသည်...");
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        // Dynamic Model Endpoint Request
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -109,7 +112,8 @@ async function sendMessage() {
 
 // Modal & API Key Settings
 globalSettingsBtn.addEventListener("click", () => {
-    apiKeyInput.value = apiKey; // Load saved key into input
+    apiKeyInput.value = apiKey;
+    modelSelect.value = selectedModel; // Set currently selected model
     settingsModal.classList.remove("hidden");
 });
 
@@ -117,13 +121,17 @@ closeModalBtn.addEventListener("click", () => {
     settingsModal.classList.add("hidden");
 });
 
-// Save Key
+// Save Settings
 saveKeyBtn.addEventListener("click", () => {
     const key = apiKeyInput.value.trim();
+    selectedModel = modelSelect.value;
+    
+    localStorage.setItem("gemini_model", selectedModel);
+
     if (key) {
         apiKey = key;
         localStorage.setItem("gemini_api_key", key);
-        alert("API Key သိမ်းဆည်းပြီးပါပြီ!");
+        alert("Settings သိမ်းဆည်းပြီးပါပြီ!");
         settingsModal.classList.add("hidden");
     } else {
         alert("API Key ရေးထည့်ပေးပါ။");
@@ -137,4 +145,4 @@ deleteKeyBtn.addEventListener("click", () => {
     apiKeyInput.value = "";
     alert("API Key ကို ဖျက်လိုက်ပါပြီ!");
 });
-    
+        
