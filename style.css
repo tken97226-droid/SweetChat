@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat - Character Selection</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="main-header">
+            <h1>AI Characters</h1>
+            <button id="global-settings-btn" class="icon-btn">⚙️ API Key</button>
+        </header>
+
+        <!-- Character Selection Grid -->
+        <main class="character-grid" id="character-grid">
+            <!-- ဇာတ်ကောင် ၁ -->
+            <div class="char-card" data-id="char1" data-name="Suzuki" data-desc="ချစ်စရာကောင်းပြီး ရွှင်မြူးတဲ့ ဇာတ်ကောင်">
+                <div class="char-avatar">🌸</div>
+                <div class="char-info">
+                    <h3>Suzuki</h3>
+                    <p>ချစ်စရာကောင်းပြီး ရွှင်မြူးတဲ့ ဇာတ်ကောင်</p>
+                </div>
+            </div>
+
+            <!-- ဇာတ်ကောင် ၂ -->
+            <div class="char-card" data-id="char2" data-name="Aria" data-desc="အေးဆေးတည်ငြိမ်ပြီး ဗဟုသုတကြွယ်ဝသူ">
+                <div class="char-avatar">🔮</div>
+                <div class="char-info">
+                    <h3>Aria</h3>
+                    <p>အေးဆေးတည်ငြိမ်ပြီး ဗဟုသုတကြွယ်ဝသူ</p>
+                </div>
+            </div>
+
+            <!-- ဇာတ်ကောင် ၃ -->
+            <div class="char-card" data-id="char3" data-name="Luna" data-desc="သွက်လက်ထက်မြက်တဲ့ စွန့်စားသူ">
+                <div class="char-avatar">⭐</div>
+                <div class="char-info">
+                    <h3>Luna</h3>
+                    <p>သွက်လက်ထက်မြက်တဲ့ စွန့်စားသူ</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- API Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Gemini API Settings</h3>
+            <p>သင့်ရဲ့ Google AI Studio API Key ကို ထည့်ပါ</p>
+            <input type="password" id="api-key-input" placeholder="API Key ထည့်ရန်...">
+            <div class="modal-buttons">
+                <button id="save-key-btn">သိမ်းမည်</button>
+                <button id="close-modal-btn">ပိတ်မည်</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
