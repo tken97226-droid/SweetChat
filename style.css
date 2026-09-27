@@ -1,63 +1,261 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat - Character Selection</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="app-container">
-        <!-- Header -->
-        <header class="main-header">
-            <h1>AI Characters</h1>
-            <button id="global-settings-btn" class="icon-btn">⚙️ API Key</button>
-        </header>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
 
-        <!-- Character Selection Grid -->
-        <main class="character-grid" id="character-grid">
-            <!-- ဇာတ်ကောင် ၁ -->
-            <div class="char-card" data-id="char1" data-name="Suzuki" data-desc="ချစ်စရာကောင်းပြီး ရွှင်မြူးတဲ့ ဇာတ်ကောင်">
-                <div class="char-avatar">🌸</div>
-                <div class="char-info">
-                    <h3>Suzuki</h3>
-                    <p>ချစ်စရာကောင်းပြီး ရွှင်မြူးတဲ့ ဇာတ်ကောင်</p>
-                </div>
-            </div>
+body {
+    background-color: #f5f5f7;
+    color: #333;
+    display: flex;
+    justify-content: center;
+}
 
-            <!-- ဇာတ်ကောင် ၂ -->
-            <div class="char-card" data-id="char2" data-name="Aria" data-desc="အေးဆေးတည်ငြိမ်ပြီး ဗဟုသုတကြွယ်ဝသူ">
-                <div class="char-avatar">🔮</div>
-                <div class="char-info">
-                    <h3>Aria</h3>
-                    <p>အေးဆေးတည်ငြိမ်ပြီး ဗဟုသုတကြွယ်ဝသူ</p>
-                </div>
-            </div>
+.app-container {
+    width: 100%;
+    max-width: 480px;
+    background: #f7f7f9;
+    min-height: 100vh;
+    padding: 16px;
+    position: relative;
+}
 
-            <!-- ဇာတ်ကောင် ၃ -->
-            <div class="char-card" data-id="char3" data-name="Luna" data-desc="သွက်လက်ထက်မြက်တဲ့ စွန့်စားသူ">
-                <div class="char-avatar">⭐</div>
-                <div class="char-info">
-                    <h3>Luna</h3>
-                    <p>သွက်လက်ထက်မြက်တဲ့ စွန့်စားသူ</p>
-                </div>
-            </div>
-        </main>
-    </div>
+/* Header */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
 
-    <!-- API Settings Modal -->
-    <div id="settings-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3>Gemini API Settings</h3>
-            <p>သင့်ရဲ့ Google AI Studio API Key ကို ထည့်ပါ</p>
-            <input type="password" id="api-key-input" placeholder="API Key ထည့်ရန်...">
-            <div class="modal-buttons">
-                <button id="save-key-btn">သိမ်းမည်</button>
-                <button id="close-modal-btn">ပိတ်မည်</button>
-            </div>
-        </div>
-    </div>
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
-    <script src="script.js"></script>
-</body>
-</html>
+.logo-icon {
+    font-size: 24px;
+}
+
+.icon-btn {
+    background: #fff;
+    border: 1px solid #eee;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* Search Bar */
+.search-bar-container {
+    margin: 16px 0;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 20px;
+    border: none;
+    background: #eaeaea;
+    font-size: 14px;
+    outline: none;
+}
+
+/* Section Title */
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.badge {
+    background: #ffe3e8;
+    color: #ff4d6d;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+/* Character Card */
+.character-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.char-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.char-card:active {
+    transform: scale(0.98);
+}
+
+.char-card-header {
+    display: flex;
+    gap: 12px;
+}
+
+.char-avatar-img {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #f0f0f0;
+}
+
+.char-details {
+    flex: 1;
+}
+
+.char-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gender-icon.female {
+    color: #ff4d6d;
+}
+
+.level-tag {
+    margin-left: auto;
+    background: #f0f0f0;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: #666;
+}
+
+.char-subtitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ff4d6d;
+    margin-top: 2px;
+}
+
+.char-desc {
+    font-size: 12px;
+    color: #777;
+    margin-top: 4px;
+    line-height: 1.3;
+}
+
+/* Tags */
+.char-tags {
+    display: flex;
+    gap: 6px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+}
+
+.tag {
+    background: #f3f3f5;
+    color: #666;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* Footer Action */
+.char-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #f5f5f5;
+    padding-top: 10px;
+}
+
+.profile-link {
+    font-size: 12px;
+    color: #999;
+}
+
+.chat-start-btn {
+    background: #ff4d6d;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Chat View Section */
+.hidden { display: none !important; }
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.chat-header-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.chat-box {
+    height: 60vh;
+    overflow-y: auto;
+    padding: 12px 0;
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 8px;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 18px;
+    border: 1px solid #ddd;
+}
+
+.chat-input-area button {
+    background: #ff4d6d;
+    color: white;
+    border: none;
+    padding: 0 16px;
+    border-radius: 18px;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    width: 80%;
+    max-width: 300px;
+    }
+        
