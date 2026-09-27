@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SweetChat - AI Characters</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="main-header">
+            <h1 id="app-title">SweetChat</h1>
+            <button id="global-settings-btn" class="icon-btn">⚙️ Settings</button>
+        </header>
+
+        <!-- Character Selection Grid -->
+        <div id="character-view" class="view">
+            <h2>Select a Character</h2>
+            <main class="character-grid" id="character-grid">
+                <div class="char-card" onclick="openChat('Suzuki', '🌸', 'ချစ်စရာကောင်းပြီး ရွှင်မြူးတဲ့ ဇာတ်ကောင်')">
+                    <div class="char-avatar">🌸</div>
+                    <div class="char-info">
+                        <h3>Suzuki</h3>
+                        <p>ချစ်စရာကောင်းပြီး ရွှင်မြူးတဲ့ ဇာတ်ကောင်</p>
+                    </div>
+                </div>
+                <div class="char-card" onclick="openChat('Aria', '🔮', 'အေးဆေးတည်ငြိမ်ပြီး ဗဟုသုတကြွယ်ဝသူ')">
+                    <div class="char-avatar">🔮</div>
+                    <div class="char-info">
+                        <h3>Aria</h3>
+                        <p>အေးဆေးတည်ငြိမ်ပြီး ဗဟုသုတကြွယ်ဝသူ</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Chat Room View -->
+        <div id="chat-view" class="view hidden">
+            <div class="chat-header">
+                <button onclick="showCharacterSelection()" class="back-btn">⬅️ Back</button>
+                <div class="current-char-info">
+                    <span id="chat-avatar" class="avatar">🌸</span>
+                    <h3 id="chat-name">Suzuki</h3>
+                </div>
+            </div>
+            
+            <div id="chat-box" class="chat-box"></div>
+
+            <div class="chat-input-area">
+                <input type="text" id="user-input" placeholder="Message..." autocomplete="off">
+                <button id="send-btn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>API Key Settings</h3>
+            <p>Gemini API Key ထည့်ပါ</p>
+            <input type="password" id="api-key-input" placeholder="Enter API Key">
+            <div class="modal-buttons">
+                <button id="save-key-btn">Save</button>
+                <button id="close-modal-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
