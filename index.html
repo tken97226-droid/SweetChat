@@ -7,136 +7,134 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Header -->
-        <header class="main-header">
-            <div class="logo-area">
-                <span class="logo-icon">🍓</span>
-                <h2>SweetChat</h2>
-            </div>
-            <button id="global-settings-btn" class="icon-btn">⚙️</button>
-        </header>
 
-        <!-- Search Bar -->
-        <div class="search-bar-container">
-            <input type="text" placeholder="အမည် သို့မဟုတ် ဝိသေသဖြင့် ရှာဖွေပါ..." class="search-input">
+    <!-- App Header -->
+    <header class="app-header">
+        <div class="logo-area">
+            <span class="logo-icon">🍓</span>
+            <h1>SweetChat</h1>
+        </div>
+        <button id="global-settings-btn" class="icon-btn">⚙️</button>
+    </header>
+
+    <!-- Character Selection View -->
+    <main id="character-view" class="container">
+        <div class="search-bar">
+            <input type="text" placeholder="အမည် သို့မဟုတ် ဝိသေသဖြင့် ရှာဖွေပါ...">
         </div>
 
-        <!-- Character Selection Grid -->
-        <div id="character-view" class="view">
-            <div class="section-title">
-                <span>တရားဝင် အဖော်များ</span>
-                <span class="badge">3 ယောက် ရှိသည်</span>
-            </div>
+        <div class="section-title">
+            <h2>တရားဝင် အဖော်များ</h2>
+            <span class="badge">3 ယောက် ရှိသည်</span>
+        </div>
 
-            <main class="character-grid">
-                <!-- Suzuki Card -->
-                <div class="char-card" onclick="openChat('Suzuki', 'Susuki.jpeg', 'ရွှင်မြူးပြီး ချစ်စရာကောင်းသူ')">
-                    <div class="char-card-header">
-                        <img src="Susuki.jpeg" class="char-avatar-img" alt="Suzuki">
-                        <div class="char-details">
-                            <div class="char-name-row">
-                                <span class="gender-icon female">♀</span>
-                                <h3>Suzuki</h3>
-                                <span class="level-tag">အဆင့် ၁</span>
-                            </div>
-                            <p class="char-subtitle">ရွှင်မြူးပြီး ချစ်စရာကောင်းသော အထက်တန်းကျောင်းသူလေး။</p>
-                            <p class="char-desc">စကားပြောရတာ ကြိုက်တယ်၊ စွမ်းအင်အပြည့်နဲ့ အမြဲတမ်း ပျော်ပျော်နေတတ်သူ...</p>
-                        </div>
-                    </div>
-                    <div class="char-tags">
-                        <span class="tag">တက်ကြွသူ</span>
-                        <span class="tag">ချိုသာ</span>
-                        <span class="tag">ကျောင်းသူ</span>
-                    </div>
-                    <div class="char-card-footer">
-                        <span class="profile-link">👤 ပရိုဖိုင်</span>
-                        <button class="chat-start-btn">💬 စတင်မည်</button>
-                    </div>
+        <div class="character-list">
+            <!-- Suzuki -->
+            <div class="card" onclick="openChat('Suzuki', 'https://i.ibb.co/Ld1vKqG/suzuki.jpg', 'ရွှင်ပြုံးပြီး ချစ်စရာကောင်းသော အထက်တန်းကျောင်းသူလေး။')">
+                <div class="card-avatar">
+                    <img src="https://i.ibb.co/Ld1vKqG/suzuki.jpg" alt="Suzuki">
                 </div>
-
-                <!-- Aria Card -->
-                <div class="char-card" onclick="openChat('Aria', 'idk.jpeg', 'အေးဆေးတည်ငြိမ်သူ')">
-                    <div class="char-card-header">
-                        <img src="idk.jpeg" class="char-avatar-img" alt="Aria">
-                        <div class="char-details">
-                            <div class="char-name-row">
-                                <span class="gender-icon female">♀</span>
-                                <h3>Aria</h3>
-                                <span class="level-tag">အဆင့် ၂</span>
-                            </div>
-                            <p class="char-subtitle">အေးဆေးတည်ငြိမ်ပြီး ဗဟုသုတကြွယ်ဝသူ။</p>
-                            <p class="char-desc">စာအုပ်ဖတ်ရတာ ကြိုက်ပြီး သင့်ရဲ့ အခက်အခဲတွေကို အမြဲကူညီပေးမယ့်သူ...</p>
-                        </div>
+                <div class="card-info">
+                    <div class="card-header">
+                        <h3><span class="gender-female">♀</span> Suzuki</h3>
+                        <span class="level-badge">အဆင့် ၁</span>
                     </div>
-                    <div class="char-tags">
+                    <p class="desc">ရွှင်ပြုံးပြီး ချစ်စရာကောင်းသော အထက်တန်းကျောင်းသူလေး။</p>
+                    <p class="sub-desc">စကားပြောရတာ ကြိုက်တယ်၊ စွမ်းအင်အပြည့်နဲ့။</p>
+                    <div class="tags">
                         <span class="tag">အေးဆေးသူ</span>
                         <span class="tag">ဗဟုသုတ</span>
                         <span class="tag">ကူညီတတ်သူ</span>
                     </div>
-                    <div class="char-card-footer">
-                        <span class="profile-link">👤 ပရိုဖိုင်</span>
+                    <div class="card-footer">
+                        <span class="user-link">👤 ပရိုဖိုင်</span>
                         <button class="chat-start-btn">💬 စတင်မည်</button>
                     </div>
                 </div>
+            </div>
 
-                <!-- Waguri Card -->
-                <div class="char-card" onclick="openChat('Waguri', 'Waguri.jpeg', 'နွေးထွေးဖော်ရွေပြီး မုန့်ကြိုက်သူ')">
-                    <div class="char-card-header">
-                        <img src="Waguri.jpeg" class="char-avatar-img" alt="Waguri">
-                        <div class="char-details">
-                            <div class="char-name-row">
-                                <span class="gender-icon female">♀</span>
-                                <h3>Waguri</h3>
-                                <span class="level-tag">အဆင့် ၃</span>
-                            </div>
-                            <p class="char-subtitle">နွေးထွေးဖော်ရွေပြီး မုန့်ကြိုက်သော ကျောင်းသူလေး။</p>
-                            <p class="char-desc">အမြဲတမ်း ပြုံးပြုံးလေးနဲ့ နွေးထွေးစွာ စကားပြောတတ်ပြီး မုန့်အချိုပွဲတွေကို နှစ်သက်သူ...</p>
-                        </div>
+            <!-- Aria -->
+            <div class="card" onclick="openChat('Aria', 'https://i.ibb.co/303QY9q/aria.jpg', 'အေးဆေးတည်ငြိမ်ပြီး ဗဟုသုတကြွယ်သူ။')">
+                <div class="card-avatar">
+                    <img src="https://i.ibb.co/303QY9q/aria.jpg" alt="Aria">
+                </div>
+                <div class="card-info">
+                    <div class="card-header">
+                        <h3><span class="gender-female">♀</span> Aria</h3>
+                        <span class="level-badge">အဆင့် ၂</span>
                     </div>
-                    <div class="char-tags">
-                        <span class="tag">ဖော်ရွေ</span>
-                        <span class="tag">ချိုသာ</span>
+                    <p class="desc">အေးဆေးတည်ငြိမ်ပြီး ဗဟုသုတကြွယ်သူ။</p>
+                    <p class="sub-desc">စာအုပ်ဖတ်ရတာ ကြိုက်ပြီး သင့်ရဲ့ အခက်အခဲတွေကို အမြဲကူညီပေးမယ့်သူ။</p>
+                    <div class="tags">
+                        <span class="tag">အေးဆေးသူ</span>
+                        <span class="tag">ဗဟုသုတ</span>
+                        <span class="tag">ကူညီတတ်သူ</span>
+                    </div>
+                    <div class="card-footer">
+                        <span class="user-link">👤 ပရိုဖိုင်</span>
+                        <button class="chat-start-btn">💬 စတင်မည်</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Waguri -->
+            <div class="card" onclick="openChat('Waguri', 'https://i.ibb.co/Z8P1n8G/waguri.jpg', 'နွေးထွေးဖော်ရွေပြီး မုန့်ကြိုက်သော ကျောင်းသူလေး။')">
+                <div class="card-avatar">
+                    <img src="https://i.ibb.co/Z8P1n8G/waguri.jpg" alt="Waguri">
+                </div>
+                <div class="card-info">
+                    <div class="card-header">
+                        <h3><span class="gender-female">♀</span> Waguri</h3>
+                        <span class="level-badge">အဆင့် ၃</span>
+                    </div>
+                    <p class="desc">နွေးထွေးဖော်ရွေပြီး မုန့်ကြိုက်သော ကျောင်းသူလေး။</p>
+                    <p class="sub-desc">အမြဲတမ်း ပြုံးပြုံးလေးနဲ့ နွေးထွေးစွာ စကားပြောတတ်ပြီး မုန့်စားရတာ သဘောကျသူ။</p>
+                    <div class="tags">
+                        <span class="tag">နွေးထွေးသူ</span>
+                        <span class="tag">ချစ်စရာ</span>
                         <span class="tag">မုန့်ကြိုက်သူ</span>
                     </div>
-                    <div class="char-card-footer">
-                        <span class="profile-link">👤 ပရိုဖိုင်</span>
+                    <div class="card-footer">
+                        <span class="user-link">👤 ပရိုဖိုင်</span>
                         <button class="chat-start-btn">💬 စတင်မည်</button>
                     </div>
                 </div>
-            </main>
-        </div>
-
-        <!-- Chat Room View -->
-        <div id="chat-view" class="view hidden">
-            <div class="chat-header">
-                <button onclick="showCharacterSelection()" class="back-btn">⬅️</button>
-                <img id="chat-avatar-img" src="" class="chat-header-avatar">
-                <h3 id="chat-name">Suzuki</h3>
-            </div>
-            <div id="chat-box" class="chat-box"></div>
-            <div class="chat-input-area">
-                <input type="text" id="user-input" placeholder="Message..." autocomplete="off">
-                <button id="send-btn">Send</button>
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- API Key & Settings Modal -->
-    <div id="settings-modal" class="modal hidden">
+    <!-- Chat View -->
+    <main id="chat-view" class="chat-container hidden">
+        <div class="chat-header">
+            <button class="back-btn" onclick="showCharacterSelection()">⬅️</button>
+            <div class="chat-user-info">
+                <img id="chat-avatar-img" src="" alt="Avatar">
+                <h2 id="chat-name">Suzuki</h2>
+            </div>
+        </div>
+
+        <div id="chat-box" class="chat-box"></div>
+
+        <div class="chat-input-area">
+            <input type="text" id="user-input" placeholder="Message...">
+            <button id="send-btn">Send</button>
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <h3>⚙️ App Settings</h3>
             
-            <label for="model-select" class="input-label">AI Model ရွေးချယ်ပါ</label>
-            <select id="model-select" class="settings-select">
-                <option value="gemini-2.5-flash">Gemini 2.5 Flash (အကြံပြုထားသည်)</option>
-                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+            <label for="model-select"><b>AI Model ရွေးချယ်ပါ</b></label>
+            <select id="model-select">
                 <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
             </select>
 
-            <label for="api-key-input" class="input-label">Gemini API Key</label>
-            <input type="password" id="api-key-input" placeholder="Enter API Key (e.g. AIzaSy...)">
-            
+            <label for="api-key-input"><b>Gemini API Key (တစ်ကြောင်းလျှင် တစ်ခုစီ)</b></label>
+            <textarea id="api-key-input" rows="5" placeholder="Enter API Keys here...&#10;AIzaSy...&#10;AIzaSy..."></textarea>
+
             <div class="modal-buttons">
                 <button id="save-key-btn" class="btn-save">Save</button>
                 <button id="delete-key-btn" class="btn-delete">Delete Key</button>
@@ -148,4 +146,4 @@
     <script src="script.js"></script>
 </body>
     </html>
-                                    
+    
