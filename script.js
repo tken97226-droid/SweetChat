@@ -1,8 +1,8 @@
 // Global State Storage
 let currentCharacter = "";
 let apiKeysInput = localStorage.getItem("gemini_api_key") || "";
-let selectedModel = localStorage.getItem("gemini_model") || "gemini-2.0-flash";
-let currentTheme = localStorage.getItem("app_theme") || "light";
+let selectedModel = localStorage.getItem("gemini_model") || "gemini-1.5-flash";
+let currentTheme = localStorage.getItem("app_theme") || "blue"; // 'blue' or 'dark'
 let currentLang = localStorage.getItem("app_lang") || "my";
 
 // DOM Elements
@@ -34,19 +34,18 @@ const systemPrompts = {
     "Waguri": "You are Waguri, a warm, sweet-natured girl who loves sweets and desserts. Always reply in Burmese with a warm and affectionate tone."
 };
 
-// UI Handlers: Theme & Model Selection
+// UI Handlers: Theme Switcher (Blue Navy vs Pure Dark)
 function setTheme(theme) {
     currentTheme = theme;
+    const darkBtn = document.getElementById("theme-dark-btn");
+    const lightBtn = document.getElementById("theme-light-btn");
+
     if (theme === "dark") {
         document.body.classList.add("dark-theme");
-        const darkBtn = document.getElementById("theme-dark-btn");
-        const lightBtn = document.getElementById("theme-light-btn");
         if (darkBtn) darkBtn.classList.add("active");
         if (lightBtn) lightBtn.classList.remove("active");
     } else {
         document.body.classList.remove("dark-theme");
-        const lightBtn = document.getElementById("theme-light-btn");
-        const darkBtn = document.getElementById("theme-dark-btn");
         if (lightBtn) lightBtn.classList.add("active");
         if (darkBtn) darkBtn.classList.remove("active");
     }
@@ -94,13 +93,25 @@ function showCharacterSelection() {
 function appendMessage(sender, text) {
     const msgDiv = document.createElement("div");
     msgDiv.classList.add("msg", sender);
-    msgDiv.innerText = text;
+    if (typeof text === "string") {
+        msgDiv.innerText = text;
+    } else {
+        msgDiv.appendChild(text);
+    }
     chatBox.appendChild(msgDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
     return msgDiv;
 }
 
-// Send Message Logic with Correct API Model Names & Fallback
+// Messenger Style Typing Indicator Component
+function createTypingIndicator() {
+    const container = document.createElement("div");
+    container.classList.add("typing-dots");
+    container.innerHTML = `<span></span><span></span><span></span>`;
+    return container;
+}
+
+// Send Message Logic
 sendBtn.addEventListener("click", sendMessage);
 userInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") sendMessage();
@@ -128,19 +139,16 @@ async function sendMessage() {
     appendMessage("user", message);
     userInput.value = "";
 
-    const loadingMsg = appendMessage("ai", "စာရိုက်နေသည်...");
+    // Show Messenger ... Typing Animation
+    const typingIndicatorNode = createTypingIndicator();
+    const loadingMsg = appendMessage("ai", typingIndicatorNode);
 
-    // တရားဝင် အလုပ်လုပ်သော Gemini API Model များသာ သုံးထားသည်
-    const fallbackModels = [selectedModel, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
+    const fallbackModels = ["gemini-1.5-flash", "gemini-2.0-flash-exp"];
     let success = false;
     let lastError = "";
 
     for (let m = 0; m < fallbackModels.length && !success; m++) {
-        let modelToTry = fallbackModels[m];
-        
-        // Error ဖြစ်စေနိုင်သော အမည်ဟောင်းများကို တရားဝင် အမည်များသို့ ပြောင်းပေးခြင်း
-        if (modelToTry.includes("1.5-flash-latest")) modelToTry = "gemini-1.5-flash";
-        if (modelToTry.includes("3.8") || modelToTry.includes("3.7") || modelToTry.includes("3.6")) modelToTry = "gemini-2.0-flash";
+        const modelToTry = fallbackModels[m];
 
         for (let i = 0; i < keys.length; i++) {
             const currentKey = keys[i];
@@ -172,13 +180,14 @@ async function sendMessage() {
                 const data = await response.json();
 
                 if (data.error) {
-                    console.warn(`Model ${modelToTry} / Key ${i + 1} Error:`, data.error.message);
+                    console.warn(`Model ${modelToTry} Error:`, data.error.message);
                     lastError = data.error.message;
                     continue;
                 }
 
                 if (data.candidates && data.candidates[0] && data.candidates[0].content) {
                     const aiReply = data.candidates[0].content.parts[0].text;
+                    loadingMsg.innerHTML = "";
                     loadingMsg.innerText = aiReply;
                     success = true;
                     break;
