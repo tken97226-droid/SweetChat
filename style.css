@@ -1,26 +1,54 @@
+/* Global Reset & Base Theme Variable Settings */
+:root {
+    --bg-color: #f6f7fb;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --text-sub: #666666;
+    --accent-color: #ff6584;
+    --accent-hover: #e05370;
+    --border-color: #eee;
+    --modal-bg: #ffffff;
+    --item-bg: #f9fafc;
+}
+
+body.dark-theme {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-color: #e0e0e0;
+    --text-sub: #aaaaaa;
+    --accent-color: #ff6584;
+    --border-color: #333333;
+    --modal-bg: #1e1e1e;
+    --item-bg: #2a2a2a;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background-color: #f4f5f7;
-    color: #333;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
 
-/* App Header */
+.hidden {
+    display: none !important;
+}
+
+/* Header */
 .app-header {
+    background-color: var(--card-bg);
+    padding: 12px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #fff;
-    padding: 12px 16px;
-    border-bottom: 1px solid #e0e0e0;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .logo-area {
@@ -29,10 +57,13 @@ body {
     gap: 8px;
 }
 
-.logo-area h1 {
-    font-size: 18px;
-    font-weight: bold;
-    color: #222;
+.logo-icon {
+    font-size: 22px;
+}
+
+.app-header h1 {
+    font-size: 20px;
+    color: var(--accent-color);
 }
 
 .icon-btn {
@@ -42,60 +73,53 @@ body {
     cursor: pointer;
 }
 
+/* Container */
 .container {
     padding: 16px;
     max-width: 600px;
     margin: 0 auto;
+    width: 100%;
 }
 
-/* Search Bar */
 .search-bar input {
     width: 100%;
-    padding: 10px 14px;
+    padding: 12px 16px;
     border-radius: 20px;
-    border: 1px solid #ddd;
-    background-color: #eaeaea;
-    font-size: 14px;
-    margin-bottom: 16px;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    color: var(--text-color);
     outline: none;
 }
 
-/* Section Title */
 .section-title {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    gap: 10px;
+    margin: 20px 0 12px 0;
 }
 
 .section-title h2 {
     font-size: 16px;
-    color: #222;
 }
 
 .badge {
-    background-color: #fce8e6;
-    color: #d93025;
+    background-color: #ffeef2;
+    color: var(--accent-color);
     font-size: 12px;
     padding: 2px 8px;
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
-/* Character Card */
-.character-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
+/* Character Cards */
 .card {
+    background-color: var(--card-bg);
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 12px;
     display: flex;
-    background-color: #fff;
-    border-radius: 12px;
-    padding: 12px;
-    gap: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    gap: 14px;
     cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
 }
 
 .card-avatar img {
@@ -113,35 +137,29 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px;
-}
-
-.card-header h3 {
-    font-size: 15px;
-    color: #111;
 }
 
 .gender-female {
-    color: #ff4d4f;
+    color: #ff6584;
 }
 
 .level-badge {
     font-size: 11px;
-    color: #666;
-    background-color: #eee;
+    background-color: #f0f0f0;
     padding: 2px 6px;
-    border-radius: 4px;
+    border-radius: 6px;
+    color: var(--text-sub);
 }
 
 .desc {
     font-size: 13px;
-    color: #555;
-    margin-bottom: 2px;
+    font-weight: bold;
+    margin: 4px 0 2px 0;
 }
 
 .sub-desc {
     font-size: 12px;
-    color: #888;
+    color: var(--text-sub);
     margin-bottom: 8px;
 }
 
@@ -152,50 +170,43 @@ body {
 }
 
 .tag {
-    font-size: 11px;
-    background-color: #e8f0fe;
-    color: #1a73e8;
-    padding: 2px 8px;
+    font-size: 10px;
+    background-color: var(--item-bg);
+    padding: 2px 6px;
     border-radius: 4px;
+    color: var(--text-sub);
 }
 
 .card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.user-link {
     font-size: 12px;
-    color: #666;
 }
 
 .chat-start-btn {
-    background-color: #ff4d6d;
+    background-color: var(--accent-color);
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 12px;
     cursor: pointer;
 }
 
-/* Chat UI */
+/* Chat Screen */
 .chat-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    max-width: 600px;
-    margin: 0 auto;
-    background-color: #fff;
 }
 
 .chat-header {
+    background-color: var(--card-bg);
+    padding: 10px 16px;
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .back-btn {
@@ -208,14 +219,13 @@ body {
 .chat-user-info {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .chat-user-info img {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    object-fit: cover;
 }
 
 .chat-box {
@@ -225,120 +235,244 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    background-color: #f9f9f9;
 }
 
 .msg {
-    max-width: 75%;
+    max-width: 80%;
     padding: 10px 14px;
     border-radius: 16px;
     font-size: 14px;
     line-height: 1.4;
-    word-wrap: break-word;
 }
 
 .msg.user {
     align-self: flex-end;
-    background-color: #ff4d6d;
+    background-color: var(--accent-color);
     color: white;
-    border-bottom-right-radius: 4px;
+    border-bottom-right-radius: 2px;
 }
 
 .msg.ai {
     align-self: flex-start;
-    background-color: #e9e9eb;
-    color: #000;
-    border-bottom-left-radius: 4px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border-bottom-left-radius: 2px;
+    border: 1px solid var(--border-color);
 }
 
 .chat-input-area {
+    padding: 12px;
+    background-color: var(--card-bg);
     display: flex;
-    padding: 10px 16px;
-    border-top: 1px solid #eee;
-    background-color: #fff;
-    gap: 8px;
+    gap: 10px;
+    border-top: 1px solid var(--border-color);
 }
 
 .chat-input-area input {
     flex: 1;
     padding: 10px 14px;
-    border: 1px solid #ddd;
     border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
     outline: none;
-    font-size: 14px;
 }
 
 .chat-input-area button {
-    background-color: #ff4d6d;
+    background-color: var(--accent-color);
     color: white;
     border: none;
     padding: 0 18px;
     border-radius: 20px;
-    font-weight: bold;
     cursor: pointer;
 }
 
-/* Modal */
+/* BerryChat Style Settings Modal */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4);
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: 16px;
 }
 
 .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 400px;
+    background-color: var(--modal-bg);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 450px;
+    max-height: 90vh;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
-.modal-content select,
-.modal-content textarea {
+.modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-x-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: var(--text-sub);
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.setting-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.setting-title {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.setting-desc {
+    font-size: 12px;
+    color: var(--text-sub);
+}
+
+.toggle-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background-color: var(--item-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.toggle-btn.active {
+    background-color: #ffeef2;
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+.model-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.model-card {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    background-color: var(--item-bg);
+    cursor: pointer;
+}
+
+.model-card.active {
+    border: 1px solid var(--accent-color);
+    background-color: #ffeef2;
+}
+
+.model-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.model-card p {
+    font-size: 11px;
+    color: var(--text-sub);
+}
+
+.badge-free {
+    font-size: 10px;
+    background-color: #e2e8f0;
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: #475569;
+}
+
+.key-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-check-key {
+    background-color: var(--item-bg);
+    border: 1px solid var(--border-color);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.key-notice {
+    color: #d97706;
+    background-color: #fffbeb;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+textarea {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 13px;
-    font-family: monospace;
-    box-sizing: border-box;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    outline: none;
+    font-size: 12px;
 }
 
-.modal-content textarea {
-    resize: vertical;
-}
-
-.modal-buttons {
+.modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border-color);
     display: flex;
     justify-content: flex-end;
-    gap: 8px;
-    margin-top: 8px;
+    gap: 10px;
 }
 
-.modal-buttons button {
-    padding: 8px 14px;
+.btn-primary {
+    background-color: var(--accent-color);
+    color: white;
     border: none;
-    border-radius: 6px;
+    padding: 10px 18px;
+    border-radius: 12px;
     cursor: pointer;
-    font-weight: bold;
-    font-size: 13px;
 }
 
-.btn-save { background-color: #2ec4b6; color: white; }
-.btn-delete { background-color: #e71d36; color: white; }
-.btn-close { background-color: #e0e0e0; color: #333; }
-
-.hidden {
-    display: none !important;
+.btn-secondary {
+    background-color: var(--item-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 10px 18px;
+    border-radius: 12px;
+    cursor: pointer;
     }
     
