@@ -1,9 +1,7 @@
 // Global State Storage
 let currentCharacter = "";
 let apiKeysInput = localStorage.getItem("gemini_api_key") || "";
-let selectedModel = localStorage.getItem("gemini_model") || "gemini-1.5-flash";
 let currentTheme = localStorage.getItem("app_theme") || "blue"; // 'blue' or 'dark'
-let currentLang = localStorage.getItem("app_lang") || "my";
 
 // DOM Elements
 const characterView = document.getElementById("character-view");
@@ -24,7 +22,6 @@ const closeXBtn = document.getElementById("close-x-btn");
 // Init App Setup
 document.addEventListener("DOMContentLoaded", () => {
     setTheme(currentTheme);
-    selectModel(selectedModel);
 });
 
 // Character System Prompts
@@ -49,26 +46,6 @@ function setTheme(theme) {
         if (lightBtn) lightBtn.classList.add("active");
         if (darkBtn) darkBtn.classList.remove("active");
     }
-}
-
-function setLanguage(lang) {
-    currentLang = lang;
-    const myBtn = document.getElementById("lang-my-btn");
-    const enBtn = document.getElementById("lang-en-btn");
-    if (lang === "my") {
-        if (myBtn) myBtn.classList.add("active");
-        if (enBtn) enBtn.classList.remove("active");
-    } else {
-        if (enBtn) enBtn.classList.add("active");
-        if (myBtn) myBtn.classList.remove("active");
-    }
-}
-
-function selectModel(modelName) {
-    selectedModel = modelName;
-    document.querySelectorAll(".model-card").forEach(card => card.classList.remove("active"));
-    const activeCard = document.getElementById(`card-${modelName}`);
-    if (activeCard) activeCard.classList.add("active");
 }
 
 // Character Chat View Trigger
@@ -143,59 +120,57 @@ async function sendMessage() {
     const typingIndicatorNode = createTypingIndicator();
     const loadingMsg = appendMessage("ai", typingIndicatorNode);
 
-    const fallbackModels = ["gemini-1.5-flash", "gemini-2.0-flash-exp"];
     let success = false;
     let lastError = "";
 
-    for (let m = 0; m < fallbackModels.length && !success; m++) {
-        const modelToTry = fallbackModels[m];
+    // တရားဝင် အမှန်အကန် အလုပ်လုပ်သည့် gemini-1.5-flash
+    const targetModel = "gemini-1.5-flash";
 
-        for (let i = 0; i < keys.length; i++) {
-            const currentKey = keys[i];
-            
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 12000);
+    for (let i = 0; i < keys.length; i++) {
+        const currentKey = keys[i];
+        
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelToTry}:generateContent?key=${currentKey}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        contents: [
-                            {
-                                role: "user",
-                                parts: [
-                                    { text: systemPrompts[currentCharacter] || "Reply nicely in Burmese." },
-                                    { text: message }
-                                ]
-                            }
-                        ]
-                    }),
-                    signal: controller.signal
-                });
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${currentKey}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            role: "user",
+                            parts: [
+                                { text: systemPrompts[currentCharacter] || "Reply nicely in Burmese." },
+                                { text: message }
+                            ]
+                        }
+                    ]
+                }),
+                signal: controller.signal
+            });
 
-                clearTimeout(timeoutId);
-                const data = await response.json();
+            clearTimeout(timeoutId);
+            const data = await response.json();
 
-                if (data.error) {
-                    console.warn(`Model ${modelToTry} Error:`, data.error.message);
-                    lastError = data.error.message;
-                    continue;
-                }
-
-                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                    const aiReply = data.candidates[0].content.parts[0].text;
-                    loadingMsg.innerHTML = "";
-                    loadingMsg.innerText = aiReply;
-                    success = true;
-                    break;
-                }
-            } catch (err) {
-                console.warn(`Fetch Error:`, err);
-                lastError = err.name === 'AbortError' ? 'Request Timeout (လိုင်းနှေးနေပါသည်)' : (err.message || "Network Error");
+            if (data.error) {
+                console.warn(`API Key ${i + 1} Error:`, data.error.message);
+                lastError = data.error.message;
+                continue;
             }
+
+            if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                const aiReply = data.candidates[0].content.parts[0].text;
+                loadingMsg.innerHTML = "";
+                loadingMsg.innerText = aiReply;
+                success = true;
+                break;
+            }
+        } catch (err) {
+            console.warn(`Fetch Error:`, err);
+            lastError = err.name === 'AbortError' ? 'Request Timeout (လိုင်းနှေးနေပါသည်)' : (err.message || "Network Error");
         }
     }
 
@@ -226,9 +201,7 @@ if (closeXBtn) closeXBtn.addEventListener("click", () => settingsModal.classList
 saveKeyBtn.addEventListener("click", () => {
     const keysStr = apiKeyInput.value.trim();
     
-    localStorage.setItem("gemini_model", selectedModel);
     localStorage.setItem("app_theme", currentTheme);
-    localStorage.setItem("app_lang", currentLang);
 
     if (keysStr) {
         apiKeysInput = keysStr;
