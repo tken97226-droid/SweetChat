@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,11 +20,11 @@
     <!-- Character Selection View -->
     <main id="character-view" class="container">
         <div class="search-bar">
-            <input type="text" placeholder="အမည် သို့မဟုတ် ဝိသေသဖြင့် ရှာဖွေပါ...">
+            <input type="text" id="search-input" placeholder="အမည် သို့မဟုတ် ဝိသေသဖြင့် ရှာဖွေပါ...">
         </div>
 
         <div class="section-title">
-            <h2>တရားဝင် အဖော်များ</h2>
+            <h2 id="txt-official-companions">တရားဝင် အဖော်များ</h2>
             <span class="badge">3 ယောက် ရှိသည်</span>
         </div>
 
@@ -121,28 +121,95 @@
         </div>
     </main>
 
-    <!-- Settings Modal -->
+    <!-- BerryChat Style Settings Modal -->
     <div id="settings-modal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h3>⚙️ App Settings</h3>
+            <div class="modal-header">
+                <h3>အက်ပ် ဆက်တင်များ</h3>
+                <button class="close-x-btn" id="close-x-btn">✕</button>
+            </div>
             
-            <label for="model-select"><b>AI Model ရွေးချယ်ပါ</b></label>
-            <select id="model-select">
-                <option value="gemini-3.8-flash">Gemini 3.8 Flash</option>
-            </select>
+            <div class="modal-body">
+                <!-- Theme Option -->
+                <div class="setting-group">
+                    <label class="setting-title">🎨 အပြင်အဆင် (Theme)</label>
+                    <div class="toggle-buttons">
+                        <button class="toggle-btn" id="theme-dark-btn" onclick="setTheme('dark')">အမှောင်</button>
+                        <button class="toggle-btn active" id="theme-light-btn" onclick="setTheme('light')">အလင်း ✓</button>
+                    </div>
+                    <p class="setting-desc">အမှောင် သို့မဟုတ် အလင်း အပြင်အဆင်ကို ရွေးချယ်နိုင်ပါသည်။</p>
+                </div>
 
-            <label for="api-key-input"><b>Gemini API Key (တစ်ကြောင်းလျှင် တစ်ခုစီ)</b></label>
-            <textarea id="api-key-input" rows="5" placeholder="Enter API Keys here...&#10;AQ..."></textarea>
+                <!-- Language Option -->
+                <div class="setting-group">
+                    <label class="setting-title">🌐 ဘာသာစကား / Language</label>
+                    <div class="toggle-buttons">
+                        <button class="toggle-btn" id="lang-my-btn" onclick="setLanguage('my')">မြန်မာ</button>
+                        <button class="toggle-btn active" id="lang-en-btn" onclick="setLanguage('en')">မြန်မာစာ (Myanmar) ✓</button>
+                    </div>
+                </div>
 
-            <div class="modal-buttons">
-                <button id="save-key-btn" class="btn-save">Save</button>
-                <button id="delete-key-btn" class="btn-delete">Delete Key</button>
-                <button id="close-modal-btn" class="btn-close">Close</button>
+                <!-- Model Choice Option -->
+                <div class="setting-group">
+                    <label class="setting-title">🧠 AI မိုဒယ် ရွေးချယ်မှု</label>
+                    <p class="setting-desc">စကားပြောဆိုရန် အသုံးပြုလိုသော Gemini မိုဒယ်ကို ရွေးချယ်ပါ:</p>
+                    
+                    <div class="model-cards-list">
+                        <div class="model-card active" id="card-gemini-3.8-flash" onclick="selectModel('gemini-3.8-flash')">
+                            <div class="model-card-head">
+                                <strong>Gemini 3.8 Flash</strong>
+                                <span class="badge-free">Free API Tier</span>
+                            </div>
+                            <p>အခမဲ့ API အသုံးပြုသူများအတွက် အထူးသင့်လျော်သည်။ မြန်ဆန်စွာ စကားပြောဆိုနိုင်သည်။</p>
+                        </div>
+
+                        <div class="model-card" id="card-gemini-3.7-flash" onclick="selectModel('gemini-3.7-flash')">
+                            <div class="model-card-head">
+                                <strong>Gemini 3.7 Flash</strong>
+                                <span class="badge-free">Free API Tier</span>
+                            </div>
+                            <p>စွမ်းအားမြင့် သဘာဝကျသော စကားပြောဆိုမှုကို ပေးစွမ်းသည်။</p>
+                        </div>
+
+                        <div class="model-card" id="card-gemini-3.6-flash" onclick="selectModel('gemini-3.6-flash')">
+                            <div class="model-card-head">
+                                <strong>Gemini 3.6 Flash</strong>
+                                <span class="badge-free">Free API Tier</span>
+                            </div>
+                            <p>တည်ငြိမ်ပြီး ပုံမှန် အသုံးပြုရန် သင့်တော်သည်။</p>
+                        </div>
+
+                        <div class="model-card" id="card-gemini-2.5-flash" onclick="selectModel('gemini-2.5-flash')">
+                            <div class="model-card-head">
+                                <strong>Gemini 2.5 Flash</strong>
+                                <span class="badge-free">Free API Tier</span>
+                            </div>
+                            <p>ပေါ့ပါးမြန်ဆန်သော တုံ့ပြန်မှုများအတွက် အသုံးပြုနိုင်သည်။</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Key Section -->
+                <div class="setting-group">
+                    <div class="key-header-row">
+                        <label class="setting-title">🔑 Google AI API သော့များ</label>
+                        <button class="btn-check-key" onclick="checkKeys()">သော့ စစ်ဆေးမည်</button>
+                    </div>
+                    <p class="setting-desc key-notice">
+                        ℹ️ API သော့ကို ကြိုတင်ထည့်သွင်းမထားပါ။ မိမိ၏ Google AI API သော့ကို အောက်တွင် ထည့်သွင်းအသုံးပြုနိုင်ပါသည်။ (AIza... သို့မဟုတ် AQ.xxx)
+                    </p>
+                    <textarea id="api-key-input" rows="3" placeholder="Google AI API သော့ကို ဤနေရာတွင် ထည့်ပါ (AIza သို့ AQ...)..."></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="close-modal-btn" class="btn-secondary">ပိတ်မည်</button>
+                <button id="save-key-btn" class="btn-primary">✓ ဆက်တင်များ သိမ်းဆည်းမည်</button>
             </div>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
-                </html>
+                    </html>
                         
