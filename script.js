@@ -1,7 +1,9 @@
-// Global State
+// Global State Storage
 let currentCharacter = "";
 let apiKeysInput = localStorage.getItem("gemini_api_key") || "";
 let selectedModel = localStorage.getItem("gemini_model") || "gemini-3.8-flash";
+let currentTheme = localStorage.getItem("app_theme") || "light";
+let currentLang = localStorage.getItem("app_lang") || "my";
 
 // DOM Elements
 const characterView = document.getElementById("character-view");
@@ -14,11 +16,16 @@ const sendBtn = document.getElementById("send-btn");
 
 const settingsModal = document.getElementById("settings-modal");
 const globalSettingsBtn = document.getElementById("global-settings-btn");
-const modelSelect = document.getElementById("model-select");
 const apiKeyInput = document.getElementById("api-key-input");
 const saveKeyBtn = document.getElementById("save-key-btn");
-const deleteKeyBtn = document.getElementById("delete-key-btn");
 const closeModalBtn = document.getElementById("close-modal-btn");
+const closeXBtn = document.getElementById("close-x-btn");
+
+// Init App Setup
+document.addEventListener("DOMContentLoaded", () => {
+    setTheme(currentTheme);
+    selectModel(selectedModel);
+});
 
 // Character System Prompts
 const systemPrompts = {
@@ -27,7 +34,39 @@ const systemPrompts = {
     "Waguri": "You are Waguri, a warm, sweet-natured girl who loves sweets and desserts. Always reply in Burmese with a warm and affectionate tone."
 };
 
-// Character Chat Functions
+// UI Handlers: Theme & Model Selection
+function setTheme(theme) {
+    currentTheme = theme;
+    if (theme === "dark") {
+        document.body.classList.add("dark-theme");
+        document.getElementById("theme-dark-btn").classList.add("active");
+        document.getElementById("theme-light-btn").classList.remove("active");
+    } else {
+        document.body.classList.remove("dark-theme");
+        document.getElementById("theme-light-btn").classList.add("active");
+        document.getElementById("theme-dark-btn").classList.remove("active");
+    }
+}
+
+function setLanguage(lang) {
+    currentLang = lang;
+    if (lang === "my") {
+        document.getElementById("lang-my-btn").classList.add("active");
+        document.getElementById("lang-en-btn").classList.remove("active");
+    } else {
+        document.getElementById("lang-en-btn").classList.add("active");
+        document.getElementById("lang-my-btn").classList.remove("active");
+    }
+}
+
+function selectModel(modelName) {
+    selectedModel = modelName;
+    document.querySelectorAll(".model-card").forEach(card => card.classList.remove("active"));
+    const activeCard = document.getElementById(`card-${modelName}`);
+    if (activeCard) activeCard.classList.add("active");
+}
+
+// Character Chat View Trigger
 function openChat(name, avatarSrc, desc) {
     currentCharacter = name;
     chatName.innerText = name;
@@ -45,7 +84,7 @@ function showCharacterSelection() {
     characterView.classList.remove("hidden");
 }
 
-// Append Message
+// Append Message UI Helper
 function appendMessage(sender, text) {
     const msgDiv = document.createElement("div");
     msgDiv.classList.add("msg", sender);
@@ -55,16 +94,18 @@ function appendMessage(sender, text) {
     return msgDiv;
 }
 
-// Send Message Logic
+// Send Message Logic with Auto Fallback
 sendBtn.addEventListener("click", sendMessage);
 userInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") sendMessage();
 });
 
-// Helper function to get array of keys
 function getApiKeys() {
     if (!apiKeysInput) return [];
-    return apiKeysInput.split(/[\n,]+/).map(k => k.trim()).filter(k => k.length > 0);
+    return apiKeysInput
+        .split(/[\n,]+/)
+        .map(k => k.trim())
+        .filter(k => k.length > 5);
 }
 
 async function sendMessage() {
@@ -73,7 +114,7 @@ async function sendMessage() {
 
     const keys = getApiKeys();
     if (keys.length === 0) {
-        alert("ကျေးဇူးပြု၍ ⚙️ Settings ထဲတွင် Gemini API Key အနည်းဆုံး တစ်ခု ထည့်သွင်းပေးပါ!");
+        alert("ကျေးဇူးပြု၍ ⚙️ ဆက်တင် ထဲတွင် Gemini API Key ထည့်သွင်းပေးပါ!");
         settingsModal.classList.remove("hidden");
         return;
     }
@@ -83,53 +124,59 @@ async function sendMessage() {
 
     const loadingMsg = appendMessage("ai", "စာရိုက်နေသည်...");
 
+    // Auto Fallback Models Array (Berry Chat Logic)
+    const fallbackModels = [selectedModel, "gemini-2.5-flash", "gemini-1.5-flash-latest"];
     let success = false;
     let lastError = "";
 
-    for (let i = 0; i < keys.length; i++) {
-        const currentKey = keys[i];
-        
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 12000);
+    for (let m = 0; m < fallbackModels.length && !success; m++) {
+        const modelToTry = fallbackModels[m];
 
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${currentKey}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    contents: [
-                        {
-                            role: "user",
-                            parts: [
-                                { text: systemPrompts[currentCharacter] || "Reply nicely in Burmese." },
-                                { text: message }
-                            ]
-                        }
-                    ]
-                }),
-                signal: controller.signal
-            });
+        for (let i = 0; i < keys.length; i++) {
+            const currentKey = keys[i];
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-            clearTimeout(timeoutId);
-            const data = await response.json();
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelToTry}:generateContent?key=${currentKey}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        contents: [
+                            {
+                                role: "user",
+                                parts: [
+                                    { text: systemPrompts[currentCharacter] || "Reply nicely in Burmese." },
+                                    { text: message }
+                                ]
+                            }
+                        ]
+                    }),
+                    signal: controller.signal
+                });
 
-            if (data.error) {
-                console.warn(`Key ${i + 1} Error:`, data.error.message);
-                lastError = data.error.message;
-                continue;
+                clearTimeout(timeoutId);
+                const data = await response.json();
+
+                if (data.error) {
+                    console.warn(`Model ${modelToTry} / Key ${i + 1} Error:`, data.error.message);
+                    lastError = data.error.message;
+                    continue;
+                }
+
+                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                    const aiReply = data.candidates[0].content.parts[0].text;
+                    loadingMsg.innerText = aiReply;
+                    success = true;
+                    break;
+                }
+            } catch (err) {
+                console.warn(`Fetch Error:`, err);
+                lastError = err.name === 'AbortError' ? 'Request Timeout (လိုင်းနှေးနေပါသည်)' : (err.message || "Network Error");
             }
-
-            if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                const aiReply = data.candidates[0].content.parts[0].text;
-                loadingMsg.innerText = aiReply;
-                success = true;
-                break;
-            }
-        } catch (err) {
-            console.warn(`Key ${i + 1} Error:`, err);
-            lastError = err.name === 'AbortError' ? 'Request Timeout (လိုင်းနှေးနေပါသည်)' : (err.message || "Network Error");
         }
     }
 
@@ -138,38 +185,39 @@ async function sendMessage() {
     }
 }
 
-// Modal & API Key Settings
+function checkKeys() {
+    const keys = getApiKeys();
+    if (keys.length > 0) {
+        alert(`သော့ ${keys.length} ခု တွေ့ရှိပါသည်။ စစ်ဆေးမှု အဆင်ပြေပါသည်။`);
+    } else {
+        alert("မည်သည့် API သော့မှ မတွေ့ရှိပါ။ ကျေးဇူးပြု၍ API သော့ ရေးထည့်ပါ။");
+    }
+}
+
+// Modal Toggle Logic
 globalSettingsBtn.addEventListener("click", () => {
     apiKeyInput.value = apiKeysInput;
-    modelSelect.value = selectedModel;
     settingsModal.classList.remove("hidden");
 });
 
-closeModalBtn.addEventListener("click", () => {
-    settingsModal.classList.add("hidden");
-});
+closeModalBtn.addEventListener("click", () => settingsModal.classList.add("hidden"));
+closeXBtn.addEventListener("click", () => settingsModal.classList.add("hidden"));
 
-// Save Settings
+// Save Settings Event
 saveKeyBtn.addEventListener("click", () => {
     const keysStr = apiKeyInput.value.trim();
-    selectedModel = modelSelect.value;
     
     localStorage.setItem("gemini_model", selectedModel);
+    localStorage.setItem("app_theme", currentTheme);
+    localStorage.setItem("app_lang", currentLang);
 
     if (keysStr) {
         apiKeysInput = keysStr;
         localStorage.setItem("gemini_api_key", keysStr);
-        alert("Settings သို့မဟုတ် API Key(များ) ကို သိမ်းဆည်းပြီးပါပြီ!");
+        alert("ဆက်တင်များ အားလုံးကို အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ!");
         settingsModal.classList.add("hidden");
     } else {
         alert("API Key ရေးထည့်ပေးပါ။");
     }
 });
-
-// Delete Key
-deleteKeyBtn.addEventListener("click", () => {
-    apiKeysInput = "";
-    localStorage.removeItem("gemini_api_key");
-    apiKeyInput.value = "";
-    alert("API Key များကို ဖျက်လိုက်ပါပြီ!");
-});
+    
