@@ -5,211 +5,158 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SweetChat</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- App Header -->
-    <header class="app-header">
-        <div class="logo-area">
-            <span class="logo-icon">🍓</span>
-            <h1>SweetChat</h1>
-        </div>
-        <button id="global-settings-btn" class="icon-btn">⚙️</button>
-    </header>
-
-    <!-- Character Selection View -->
-    <main id="character-view" class="container">
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="အမည် သို့မဟုတ် ဝိသေသဖြင့် ရှာဖွေပါ...">
-        </div>
-
-        <div class="section-title">
-            <h2 id="txt-official-companions">တရားဝင် အဖော်များ</h2>
-            <span class="badge">3 ယောက် ရှိသည်</span>
-        </div>
-
-        <div class="character-list">
-            <!-- Suzuki -->
-            <div class="card" onclick="openChat('Suzuki', 'Susuki.jpeg', 'ရွှင်ပြုံးပြီး ချစ်စရာကောင်းသော အထက်တန်းကျောင်းသူလေး။')">
-                <div class="card-avatar">
-                    <img src="Susuki.jpeg" alt="Suzuki">
+    <!-- Main App Container -->
+    <div id="app">
+        <!-- Character Selection View -->
+        <div id="character-view">
+            <header class="app-header">
+                <div class="logo-area">
+                    <span class="logo-icon">🍓</span>
+                    <h1>SweetChat</h1>
                 </div>
-                <div class="card-info">
-                    <div class="card-header">
-                        <h3><span class="gender-female">♀</span> Suzuki</h3>
-                        <span class="level-badge">အဆင့် ၁</span>
-                    </div>
-                    <p class="desc">ရွှင်ပြုံးပြီး ချစ်စရာကောင်းသော အထက်တန်းကျောင်းသူလေး။</p>
-                    <p class="sub-desc">စကားပြောရတာ ကြိုက်တယ်၊ စွမ်းအင်အပြည့်နဲ့။</p>
-                    <div class="tags">
-                        <span class="tag">အေးဆေးသူ</span>
-                        <span class="tag">ဗဟုသုတ</span>
-                        <span class="tag">ကူညီတတ်သူ</span>
-                    </div>
-                    <div class="card-footer">
-                        <span class="user-link">👤 ပရိုဖိုင်</span>
-                        <button class="chat-start-btn">💬 စတင်မည်</button>
-                    </div>
-                </div>
-            </div>
+                <button id="global-settings-btn" class="icon-btn">⚙️</button>
+            </header>
 
-            <!-- Aria -->
-            <div class="card" onclick="openChat('Aria', 'idk.jpeg', 'အေးဆေးတည်ငြိမ်ပြီး ဗဟုသုတကြွယ်သူ။')">
-                <div class="card-avatar">
-                    <img src="idk.jpeg" alt="Aria">
+            <div class="container">
+                <div class="search-bar">
+                    <input type="text" placeholder="ဇာတ်ကောင် ရှာဖွေပါ...">
                 </div>
-                <div class="card-info">
-                    <div class="card-header">
-                        <h3><span class="gender-female">♀</span> Aria</h3>
-                        <span class="level-badge">အဆင့် ၂</span>
+
+                <div class="section-title">
+                    <h2>AI မိတ်ဆွေများ</h2>
+                    <span class="badge">3</span>
+                </div>
+
+                <!-- Suzuki Card -->
+                <div class="card" onclick="openChat('Suzuki', 'https://api.dicebear.com/7.x/bottts/svg?seed=Suzuki', 'You and I Are Polar Opposites')">
+                    <div class="card-avatar">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Suzuki" alt="Suzuki">
                     </div>
-                    <p class="desc">အေးဆေးတည်ငြိမ်ပြီး ဗဟုသုတကြွယ်သူ။</p>
-                    <p class="sub-desc">စာအုပ်ဖတ်ရတာ ကြိုက်ပြီး သင့်ရဲ့ အခက်အခဲတွေကို အမြဲကူညီပေးမယ့်သူ။</p>
-                    <div class="tags">
-                        <span class="tag">အေးဆေးသူ</span>
-                        <span class="tag">ဗဟုသုတ</span>
-                        <span class="tag">ကူညီတတ်သူ</span>
-                    </div>
-                    <div class="card-footer">
-                        <span class="user-link">👤 ပရိုဖိုင်</span>
-                        <button class="chat-start-btn">💬 စတင်မည်</button>
+                    <div class="card-info">
+                        <div class="card-header">
+                            <h3>Suzuki <span class="gender-female">♀</span></h3>
+                            <span class="level-badge">Lv.1</span>
+                        </div>
+                        <p class="desc">You and I Are Polar Opposites</p>
+                        <p class="sub-desc">တက်ကြွပြီး ချစ်စရာကောင်းသော ကောင်မလေး</p>
+                        <div class="tags">
+                            <span class="tag">Anime</span>
+                            <span class="tag">Cheerful</span>
+                        </div>
+                        <div class="card-footer">
+                            <span class="chat-count">💬 1.2k</span>
+                            <button class="chat-start-btn">စကားပြောမည်</button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Waguri -->
-            <div class="card" onclick="openChat('Waguri', 'Waguri.jpeg', 'နွေးထွေးဖော်ရွေပြီး မုန့်ကြိုက်သော ကျောင်းသူလေး။')">
-                <div class="card-avatar">
-                    <img src="Waguri.jpeg" alt="Waguri">
+                <!-- Aria Card -->
+                <div class="card" onclick="openChat('Aria', 'https://api.dicebear.com/7.x/bottts/svg?seed=Aria', 'Calm & Wise Friend')">
+                    <div class="card-avatar">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Aria" alt="Aria">
+                    </div>
+                    <div class="card-info">
+                        <div class="card-header">
+                            <h3>Aria <span class="gender-female">♀</span></h3>
+                            <span class="level-badge">Lv.2</span>
+                        </div>
+                        <p class="desc">Calm & Wise Friend</p>
+                        <p class="sub-desc">တည်ငြိမ်ပြီး အကြံဉာဏ်ကောင်းပေးနိုင်သူ</p>
+                        <div class="tags">
+                            <span class="tag">Wise</span>
+                            <span class="tag">Friendly</span>
+                        </div>
+                        <div class="card-footer">
+                            <span class="chat-count">💬 850</span>
+                            <button class="chat-start-btn">စကားပြောမည်</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-info">
-                    <div class="card-header">
-                        <h3><span class="gender-female">♀</span> Waguri</h3>
-                        <span class="level-badge">အဆင့် ၃</span>
-                    </div>
-                    <p class="desc">နွေးထွေးဖော်ရွေပြီး မုန့်ကြိုက်သော ကျောင်းသူလေး။</p>
-                    <p class="sub-desc">အမြဲတမ်း ပြုံးပြုံးလေးနဲ့ နွေးထွေးစွာ စကားပြောတတ်ပြီး မုန့်စားရတာ သဘောကျသူ။</p>
-                    <div class="tags">
-                        <span class="tag">နွေးထွေးသူ</span>
-                        <span class="tag">ချစ်စရာ</span>
-                        <span class="tag">မုန့်ကြိုက်သူ</span>
-                    </div>
-                    <div class="card-footer">
-                        <span class="user-link">👤 ပရိုဖိုင်</span>
-                        <button class="chat-start-btn">💬 စတင်မည်</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
 
-    <!-- Chat View -->
-    <main id="chat-view" class="chat-container hidden">
-        <div class="chat-header">
-            <button class="back-btn" onclick="showCharacterSelection()">⬅️</button>
-            <div class="chat-user-info">
-                <img id="chat-avatar-img" src="" alt="Avatar">
-                <h2 id="chat-name">Suzuki</h2>
+                <!-- Waguri Card -->
+                <div class="card" onclick="openChat('Waguri', 'https://api.dicebear.com/7.x/bottts/svg?seed=Waguri', 'Sweet Lover Girl')">
+                    <div class="card-avatar">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Waguri" alt="Waguri">
+                    </div>
+                    <div class="card-info">
+                        <div class="card-header">
+                            <h3>Waguri <span class="gender-female">♀</span></h3>
+                            <span class="level-badge">Lv.3</span>
+                        </div>
+                        <p class="desc">Sweet Lover Girl</p>
+                        <p class="sub-desc">မုန့်ကြိုက်ပြီး သဘောကောင်းသော ကောင်မလေး</p>
+                        <div class="tags">
+                            <span class="tag">Sweet</span>
+                            <span class="tag">Cute</span>
+                        </div>
+                        <div class="card-footer">
+                            <span class="chat-count">💬 2.4k</span>
+                            <button class="chat-start-btn">စကားပြောမည်</button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <div id="chat-box" class="chat-box"></div>
+        <!-- Chat View -->
+        <div id="chat-view" class="chat-container hidden">
+            <header class="chat-header">
+                <button class="back-btn" onclick="showCharacterSelection()"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="chat-user-info">
+                    <img id="chat-avatar-img" src="" alt="Avatar">
+                    <h3 id="chat-name">Character Name</h3>
+                </div>
+            </header>
 
-        <div class="chat-input-area">
-            <input type="text" id="user-input" placeholder="Message...">
-            <button id="send-btn">Send</button>
+            <div id="chat-box" class="chat-box">
+                <!-- Messages will be rendered here -->
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" id="user-input" placeholder="မက်ဆေ့ချ် ရိုက်ထည့်ပါ...">
+                <button id="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
         </div>
-    </main>
+    </div>
 
-    <!-- BerryChat Style Settings Modal -->
+    <!-- Settings Modal -->
     <div id="settings-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>အက်ပ် ဆက်တင်များ</h3>
-                <button class="close-x-btn" id="close-x-btn">✕</button>
+                <h3>⚙️ အက်ပ် ဆက်တင်များ</h3>
+                <button id="close-x-btn" class="close-x-btn"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
             <div class="modal-body">
-                <!-- Theme Option -->
                 <div class="setting-group">
-                    <label class="setting-title">🎨 အပြင်အဆင် (Theme)</label>
+                    <span class="setting-title">Theme ရွေးချယ်ရန်</span>
                     <div class="toggle-buttons">
-                        <button class="toggle-btn" id="theme-dark-btn" onclick="setTheme('dark')">အမှောင်</button>
-                        <button class="toggle-btn active" id="theme-light-btn" onclick="setTheme('light')">အလင်း ✓</button>
-                    </div>
-                    <p class="setting-desc">အမှောင် သို့မဟုတ် အလင်း အပြင်အဆင်ကို ရွေးချယ်နိုင်ပါသည်။</p>
-                </div>
-
-                <!-- Language Option -->
-                <div class="setting-group">
-                    <label class="setting-title">🌐 ဘာသာစကား / Language</label>
-                    <div class="toggle-buttons">
-                        <button class="toggle-btn" id="lang-my-btn" onclick="setLanguage('my')">မြန်မာ</button>
-                        <button class="toggle-btn active" id="lang-en-btn" onclick="setLanguage('en')">မြန်မာစာ (Myanmar) ✓</button>
+                        <button id="theme-light-btn" class="toggle-btn active" onclick="setTheme('blue')">Dark Navy</button>
+                        <button id="theme-dark-btn" class="toggle-btn" onclick="setTheme('dark')">Pitch Dark</button>
                     </div>
                 </div>
 
-                <!-- Model Choice Option -->
-                <div class="setting-group">
-                    <label class="setting-title">🧠 AI မိုဒယ် ရွေးချယ်မှု</label>
-                    <p class="setting-desc">စကားပြောဆိုရန် အသုံးပြုလိုသော Gemini မိုဒယ်ကို ရွေးချယ်ပါ:</p>
-                    
-                    <div class="model-cards-list">
-                        <div class="model-card active" id="card-gemini-3.8-flash" onclick="selectModel('gemini-3.8-flash')">
-                            <div class="model-card-head">
-                                <strong>Gemini 3.8 Flash</strong>
-                                <span class="badge-free">Free API Tier</span>
-                            </div>
-                            <p>အခမဲ့ API အသုံးပြုသူများအတွက် အထူးသင့်လျော်သည်။ မြန်ဆန်စွာ စကားပြောဆိုနိုင်သည်။</p>
-                        </div>
-
-                        <div class="model-card" id="card-gemini-3.7-flash" onclick="selectModel('gemini-3.7-flash')">
-                            <div class="model-card-head">
-                                <strong>Gemini 3.7 Flash</strong>
-                                <span class="badge-free">Free API Tier</span>
-                            </div>
-                            <p>စွမ်းအားမြင့် သဘာဝကျသော စကားပြောဆိုမှုကို ပေးစွမ်းသည်။</p>
-                        </div>
-
-                        <div class="model-card" id="card-gemini-3.6-flash" onclick="selectModel('gemini-3.6-flash')">
-                            <div class="model-card-head">
-                                <strong>Gemini 3.6 Flash</strong>
-                                <span class="badge-free">Free API Tier</span>
-                            </div>
-                            <p>တည်ငြိမ်ပြီး ပုံမှန် အသုံးပြုရန် သင့်တော်သည်။</p>
-                        </div>
-
-                        <div class="model-card" id="card-gemini-2.5-flash" onclick="selectModel('gemini-2.5-flash')">
-                            <div class="model-card-head">
-                                <strong>Gemini 2.5 Flash</strong>
-                                <span class="badge-free">Free API Tier</span>
-                            </div>
-                            <p>ပေါ့ပါးမြန်ဆန်သော တုံ့ပြန်မှုများအတွက် အသုံးပြုနိုင်သည်။</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- API Key Section -->
                 <div class="setting-group">
                     <div class="key-header-row">
-                        <label class="setting-title">🔑 Google AI API သော့များ</label>
+                        <span class="setting-title">Google AI API သော့များ</span>
                         <button class="btn-check-key" onclick="checkKeys()">သော့ စစ်ဆေးမည်</button>
                     </div>
-                    <p class="setting-desc key-notice">
-                        ℹ️ API သော့ကို ကြိုတင်ထည့်သွင်းမထားပါ။ မိမိ၏ Google AI API သော့ကို အောက်တွင် ထည့်သွင်းအသုံးပြုနိုင်ပါသည်။ (AIza... သို့မဟုတ် AQ.xxx)
-                    </p>
-                    <textarea id="api-key-input" rows="3" placeholder="Google AI API သော့ကို ဤနေရာတွင် ထည့်ပါ (AIza သို့ AQ...)..."></textarea>
+                    <p class="setting-desc key-notice">⚠️ API သော့များကို တစ်ကြောင်းလျှင် တစ်ခု သို့မဟုတ် ကော်မာ (,) ခြား၍ ထည့်သွင်းနိုင်ပါသည်။</p>
+                    <textarea id="api-key-input" rows="4" placeholder="AIzaSy..."></textarea>
                 </div>
             </div>
-
             <div class="modal-footer">
                 <button id="close-modal-btn" class="btn-secondary">ပိတ်မည်</button>
-                <button id="save-key-btn" class="btn-primary">✓ ဆက်တင်များ သိမ်းဆည်းမည်</button>
+                <button id="save-key-btn" class="btn-primary">သိမ်းဆည်းမည်</button>
             </div>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
-                    </html>
-                        
+    </html>
+        
