@@ -1,7 +1,7 @@
 // Global State
 let currentCharacter = "";
 let apiKeysInput = localStorage.getItem("gemini_api_key") || "";
-let selectedModel = localStorage.getItem("gemini_model") || "gemini-1.5-flash";
+let selectedModel = localStorage.getItem("gemini_model") || "gemini-3.8-flash";
 
 // DOM Elements
 const characterView = document.getElementById("character-view");
@@ -168,4 +168,4 @@ deleteKeyBtn.addEventListener("click", () => {
     apiKeyInput.value = "";
     alert("API Key များကို ဖျက်လိုက်ပါပြီ!");
 });
-        
+                                          
