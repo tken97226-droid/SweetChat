@@ -32,12 +32,11 @@ function openChat(name, avatarSrc, desc) {
     currentCharacter = name;
     chatName.innerText = name;
     chatAvatarImg.src = avatarSrc;
-    chatBox.innerHTML = ""; // Clear previous chat
+    chatBox.innerHTML = ""; 
     
     characterView.classList.add("hidden");
     chatView.classList.remove("hidden");
 
-    // Welcome message
     appendMessage("ai", `ဟိုင်း! ငါက ${name} ပါ။ ဘာတွေပြောချင်လဲဟင်?`);
 }
 
@@ -46,7 +45,7 @@ function showCharacterSelection() {
     characterView.classList.remove("hidden");
 }
 
-// Append Message to UI
+// Append Message
 function appendMessage(sender, text) {
     const msgDiv = document.createElement("div");
     msgDiv.classList.add("msg", sender);
@@ -169,3 +168,4 @@ deleteKeyBtn.addEventListener("click", () => {
     apiKeyInput.value = "";
     alert("API Key များကို ဖျက်လိုက်ပါပြီ!");
 });
+        
