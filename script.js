@@ -1,7 +1,7 @@
 // Global State Storage
 let currentCharacter = "";
 let apiKeysInput = localStorage.getItem("gemini_api_key") || "";
-let selectedModel = localStorage.getItem("gemini_model") || "gemini-3.8-flash";
+let selectedModel = localStorage.getItem("gemini_model") || "gemini-2.0-flash";
 let currentTheme = localStorage.getItem("app_theme") || "light";
 let currentLang = localStorage.getItem("app_lang") || "my";
 
@@ -39,23 +39,29 @@ function setTheme(theme) {
     currentTheme = theme;
     if (theme === "dark") {
         document.body.classList.add("dark-theme");
-        document.getElementById("theme-dark-btn").classList.add("active");
-        document.getElementById("theme-light-btn").classList.remove("active");
+        const darkBtn = document.getElementById("theme-dark-btn");
+        const lightBtn = document.getElementById("theme-light-btn");
+        if (darkBtn) darkBtn.classList.add("active");
+        if (lightBtn) lightBtn.classList.remove("active");
     } else {
         document.body.classList.remove("dark-theme");
-        document.getElementById("theme-light-btn").classList.add("active");
-        document.getElementById("theme-dark-btn").classList.remove("active");
+        const lightBtn = document.getElementById("theme-light-btn");
+        const darkBtn = document.getElementById("theme-dark-btn");
+        if (lightBtn) lightBtn.classList.add("active");
+        if (darkBtn) darkBtn.classList.remove("active");
     }
 }
 
 function setLanguage(lang) {
     currentLang = lang;
+    const myBtn = document.getElementById("lang-my-btn");
+    const enBtn = document.getElementById("lang-en-btn");
     if (lang === "my") {
-        document.getElementById("lang-my-btn").classList.add("active");
-        document.getElementById("lang-en-btn").classList.remove("active");
+        if (myBtn) myBtn.classList.add("active");
+        if (enBtn) enBtn.classList.remove("active");
     } else {
-        document.getElementById("lang-en-btn").classList.add("active");
-        document.getElementById("lang-my-btn").classList.remove("active");
+        if (enBtn) enBtn.classList.add("active");
+        if (myBtn) myBtn.classList.remove("active");
     }
 }
 
@@ -94,7 +100,7 @@ function appendMessage(sender, text) {
     return msgDiv;
 }
 
-// Send Message Logic with Auto Fallback
+// Send Message Logic with Correct API Model Names & Fallback
 sendBtn.addEventListener("click", sendMessage);
 userInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") sendMessage();
@@ -124,13 +130,17 @@ async function sendMessage() {
 
     const loadingMsg = appendMessage("ai", "စာရိုက်နေသည်...");
 
-    // Auto Fallback Models Array (Berry Chat Logic)
-    const fallbackModels = [selectedModel, "gemini-2.5-flash", "gemini-1.5-flash-latest"];
+    // တရားဝင် အလုပ်လုပ်သော Gemini API Model များသာ သုံးထားသည်
+    const fallbackModels = [selectedModel, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
     let success = false;
     let lastError = "";
 
     for (let m = 0; m < fallbackModels.length && !success; m++) {
-        const modelToTry = fallbackModels[m];
+        let modelToTry = fallbackModels[m];
+        
+        // Error ဖြစ်စေနိုင်သော အမည်ဟောင်းများကို တရားဝင် အမည်များသို့ ပြောင်းပေးခြင်း
+        if (modelToTry.includes("1.5-flash-latest")) modelToTry = "gemini-1.5-flash";
+        if (modelToTry.includes("3.8") || modelToTry.includes("3.7") || modelToTry.includes("3.6")) modelToTry = "gemini-2.0-flash";
 
         for (let i = 0; i < keys.length; i++) {
             const currentKey = keys[i];
@@ -201,7 +211,7 @@ globalSettingsBtn.addEventListener("click", () => {
 });
 
 closeModalBtn.addEventListener("click", () => settingsModal.classList.add("hidden"));
-closeXBtn.addEventListener("click", () => settingsModal.classList.add("hidden"));
+if (closeXBtn) closeXBtn.addEventListener("click", () => settingsModal.classList.add("hidden"));
 
 // Save Settings Event
 saveKeyBtn.addEventListener("click", () => {
@@ -220,4 +230,4 @@ saveKeyBtn.addEventListener("click", () => {
         alert("API Key ရေးထည့်ပေးပါ။");
     }
 });
-        
+    
