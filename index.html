@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SweetChat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="chat-container">
+    <header class="chat-header">
+      <h2>🌸 SweetChat</h2>
+      <button id="settings-btn" class="icon-btn">⚙️</button>
+    </header>
+
+    <div class="character-bar">
+      <button class="char-card active" data-character="suzuki">
+        <span>鈴木 (Suzuki)</span>
+      </button>
+      <button class="char-card" data-character="waguri">
+        <span>Waguri</span>
+      </button>
+      <button class="char-card" data-character="alya">
+        <span>Alya</span>
+      </button>
+    </div>
+
+    <div id="chapter-badge" class="chapter-badge">Chapter Loading...</div>
+
+    <div id="chat-box" class="chat-box">
+      <div class="message system">SweetChat မှ ကြိုဆိုပါတယ်! စကားစပြောလို့ရပါပြီ။</div>
+    </div>
+
+    <div class="input-container">
+      <input type="text" id="user-input" placeholder="စကားပြောရန် စာရိုက်ပါ..." autocomplete="off">
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Settings</h3>
+      <label for="api-key-input">Gemini API Key:</label>
+      <input type="password" id="api-key-input" placeholder="AIzaSy...">
+      <div class="modal-actions">
+        <button id="save-key-btn">Save Key</button>
+        <button id="close-modal-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+  </html>
+  
