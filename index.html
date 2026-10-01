@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SweetChat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="header">
+      <div class="char-info">
+        <img id="char-avatar" src="Susuki.jpeg" class="avatar-img" alt="Avatar" />
+        <h2>SweetChat</h2>
+      </div>
+      <select id="char-select" class="char-select"></select>
+    </header>
+
+    <div class="settings-bar">
+      <input type="password" id="api-key-input" placeholder="Enter Gemini API Key" />
+      <button id="save-key-btn">Save Key</button>
+      <span id="affection-badge" class="badge">Affection: 0</span>
+    </div>
+
+    <main id="chat-box" class="chat-box"></main>
+
+    <footer class="input-area">
+      <input type="text" id="chat-input" placeholder="စကားပြောရန် စာရိုက်ပါ..." />
+      <button id="send-btn">Send</button>
+    </footer>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+          </html>
+  
