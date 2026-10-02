@@ -1,4 +1,4 @@
-import { getStoredCharacters, saveCharacters, getActiveCharacter, setActiveCharacterId, getApiKey, saveApiKey } from './storage.js';
+import { getStoredCharacters, saveCharacters, getActiveCharacter, setActiveCharacterId, getApiKey, saveApiKey, getSelectedModel, saveSelectedModel } from './storage.js';
 import { sendChatMessage } from './api.js';
 import { evaluateAffection } from './affectionEngine.js';
 
@@ -10,105 +10,117 @@ document.addEventListener('DOMContentLoaded', () => {
   const sendBtn = document.getElementById('send-btn');
   const apiKeyInput = document.getElementById('api-key-input');
   const saveKeyBtn = document.getElementById('save-key-btn');
-  const charSelect = document.getElementById('char-select');
-  const affectionBadge = document.getElementById('affection-badge');
-  const charAvatar = document.getElementById('char-avatar');
+  const modelSelect = document.getElementById('model-select');
   
-  const homeView = document.getElementById('home-view');
-  const cardsList = document.getElementById('character-cards-list');
-  const inputArea = document.getElementById('input-area');
+  const headerTitle = document.getElementById('header-title');
+  const charAvatar = document.getElementById('char-avatar');
   const backBtn = document.getElementById('back-btn');
   const newChatBtn = document.getElementById('new-chat-btn');
+  const bottomNav = document.getElementById('bottom-nav');
 
+  const chatsView = document.getElementById('chats-view');
+  const settingsView = document.getElementById('settings-view');
+  const chatScreenView = document.getElementById('chat-screen-view');
+  const cardsList = document.getElementById('character-cards-list');
+
+  // Load Settings Data
   apiKeyInput.value = getApiKey();
+  modelSelect.value = getSelectedModel();
 
-  function renderCharDropdown() {
-    const chars = getStoredCharacters();
-    charSelect.innerHTML = '';
-    chars.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c.id;
-      opt.innerText = c.name;
-      charSelect.appendChild(opt);
+  // Bottom Navigation Switching Logic
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+      document.querySelectorAll('.view-content').forEach(view => view.classList.remove('active'));
+      
+      item.classList.add('active');
+      const targetTab = item.getAttribute('data-tab');
+      document.getElementById(targetTab).classList.add('active');
+
+      if (targetTab === 'chats-view') {
+        headerTitle.innerText = 'SweetChat';
+        backBtn.style.display = 'none';
+        charAvatar.style.display = 'none';
+        newChatBtn.style.display = 'none';
+        renderHomeCards();
+      } else if (targetTab === 'settings-view') {
+        headerTitle.innerText = 'Settings';
+        backBtn.style.display = 'none';
+        charAvatar.style.display = 'none';
+        newChatBtn.style.display = 'none';
+      }
     });
-  }
+  });
 
   function renderHomeCards() {
     const chars = getStoredCharacters();
     cardsList.innerHTML = '';
 
     chars.forEach(c => {
-      const card = document.createElement('div');
-      card.className = 'char-card';
-      card.innerHTML = `
+      const lastMsg = (c.messages && c.messages.length > 0) 
+        ? c.messages[c.messages.length - 1].content 
+        : c.initialChatGreeting;
+
+      const item = document.createElement('div');
+      item.className = 'chat-list-item';
+      item.innerHTML = `
         <img src="${c.avatar || 'Susuki.jpeg'}" alt="${c.name}">
-        <div class="char-card-info">
-          <h3>${c.name}</h3>
-          <p>${c.personality || ''}</p>
-          <button class="btn-chat-start" data-id="${c.id}">စကားပြောမည်</button>
+        <div class="chat-info">
+          <div class="chat-info-top">
+            <h3>${c.name}</h3>
+            <span class="badge">Affection: ${c.affection || 0}</span>
+          </div>
+          <div class="chat-last-msg">${lastMsg}</div>
         </div>
       `;
-      cardsList.appendChild(card);
-    });
-
-    document.querySelectorAll('.btn-chat-start').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const charId = e.target.getAttribute('data-id');
-        openChatSession(charId, false); // History မဖျက်ဘဲ Chat ဖွင့်မည်
-      });
+      item.addEventListener('click', () => openChatSession(c.id, false));
+      cardsList.appendChild(item);
     });
   }
 
-  // Chat Screen ကို ဖွင့်ပေးမည့် Function (isNewChat = true ဖြစ်မှသာ History ရှင်းမည်)
   function openChatSession(charId, isNewChat = false) {
     setActiveCharacterId(charId);
     currentChar = getActiveCharacter();
 
-    if (!currentChar.messages) {
-      currentChar.messages = [];
-    }
+    if (!currentChar.messages) currentChar.messages = [];
 
-    // New Chat Button ကို နှိပ်မှသာ မက်ဆေ့ချ်များ ရှင်းမည်
     if (isNewChat) {
       currentChar.messages = [];
       saveCurrentCharState();
     }
 
-    homeView.style.display = 'none';
-    chatBox.style.display = 'flex';
-    inputArea.style.display = 'flex';
+    // Hide Tab Views and Show Chat Screen View
+    document.querySelectorAll('.view-content').forEach(view => view.classList.remove('active'));
+    chatScreenView.classList.add('active');
+
+    // UI Header Updates
+    headerTitle.innerText = currentChar.name;
+    charAvatar.src = currentChar.avatar || 'Susuki.jpeg';
+    charAvatar.style.display = 'block';
     backBtn.style.display = 'block';
     newChatBtn.style.display = 'block';
+    bottomNav.style.display = 'none';
 
-    charSelect.value = currentChar.id;
     updateUI();
   }
 
   backBtn.addEventListener('click', () => {
-    chatBox.style.display = 'none';
-    inputArea.style.display = 'none';
+    chatScreenView.classList.remove('active');
+    chatsView.classList.add('active');
+    
+    headerTitle.innerText = 'SweetChat';
     backBtn.style.display = 'none';
+    charAvatar.style.display = 'none';
     newChatBtn.style.display = 'none';
-    homeView.style.display = 'flex';
+    bottomNav.style.display = 'flex';
+    
     renderHomeCards();
   });
 
   newChatBtn.addEventListener('click', () => {
     if (confirm('စကားပြောထားတာတွေကို ဖျက်ပြီး New Chat ပြန်စမလားဟင်?')) {
-      if (currentChar) {
-        openChatSession(currentChar.id, true);
-      }
+      if (currentChar) openChatSession(currentChar.id, true);
     }
-  });
-
-  renderCharDropdown();
-  renderHomeCards();
-
-  currentChar = getActiveCharacter();
-  if (currentChar) charSelect.value = currentChar.id;
-
-  charSelect.addEventListener('change', (e) => {
-    openChatSession(e.target.value, false);
   });
 
   saveKeyBtn.addEventListener('click', () => {
@@ -116,18 +128,16 @@ document.addEventListener('DOMContentLoaded', () => {
     alert('API Key သိမ်းဆည်းပြီးပါပြီ!');
   });
 
+  modelSelect.addEventListener('change', (e) => {
+    saveSelectedModel(e.target.value);
+  });
+
   function updateUI() {
     chatBox.innerHTML = '';
-    affectionBadge.innerText = `Affection: ${currentChar.affection || 0}`;
-    if (charAvatar && currentChar.avatar) {
-      charAvatar.src = currentChar.avatar;
-    }
 
-    // History မရှိသေးပါက သာ နဂို မူလ Greeting ပြမည်
     if (!currentChar.messages || currentChar.messages.length === 0) {
       appendMessage('model', currentChar.initialChatGreeting);
     } else {
-      // History ရှိပါက ရှိခဲ့သမျှ မက်ဆေ့ချ်များကို UI ပေါ်ပြန်ထုတ်ပြမည်
       currentChar.messages.forEach(msg => appendMessage(msg.role, msg.content));
     }
   }
@@ -147,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const key = getApiKey();
     if (!key) {
-      alert('ကျေးဇူးပြု၍ API Key ကို ထည့်သွင်းပါ!');
+      alert('ကျေးဇူးပြု၍ Settings ထဲသို့သွားပြီး API Key အရင်ထည့်ပေးပါ!');
       return;
     }
 
@@ -157,22 +167,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!currentChar.messages) currentChar.messages = [];
     currentChar.messages.push({ role: 'user', content: text });
 
-    // User မက်ဆေ့ချ် ရိုက်ပြီးသည်နှင့် LocalStorage ထဲ ချက်ချင်းသိမ်းမည်
     saveCurrentCharState();
 
-    const loadingElem = appendMessage('model', 'ရိုက်နေသည်...');
+    // Messenger Typing Dots Animation
+    const loadingElem = appendMessage('model', '');
+    loadingElem.innerHTML = `
+      <div class="typing-indicator">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    `;
 
     try {
-      const rawReply = await sendChatMessage(key, currentChar.model, currentChar.systemPrompt, currentChar.messages);
+      const selectedModel = getSelectedModel();
+      const rawReply = await sendChatMessage(key, selectedModel, currentChar.systemPrompt, currentChar.messages);
       const { cleanText, affectionDelta } = evaluateAffection(rawReply, text);
 
       loadingElem.innerText = cleanText;
       currentChar.messages.push({ role: 'model', content: cleanText });
 
       currentChar.affection = (currentChar.affection || 0) + affectionDelta;
-      affectionBadge.innerText = `Affection: ${currentChar.affection}`;
-
-      // AI တုံ့ပြန်ပြီးချိန်တွင်လည်း LocalStorage ထဲ ပြန်သိမ်းမည်
       saveCurrentCharState();
 
     } catch (err) {
@@ -181,7 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Active ဖြစ်နေသော Character ၏ Data ကို LocalStorage သို့ သိမ်းမည့် Function
   function saveCurrentCharState() {
     const allChars = getStoredCharacters();
     const index = allChars.findIndex(c => c.id === currentChar.id);
@@ -195,5 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
   chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleSend();
   });
+
+  renderHomeCards();
 });
         
