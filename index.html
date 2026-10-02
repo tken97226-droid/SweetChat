@@ -9,13 +9,14 @@
       --bg-color: #f8fafc;
       --card-bg: #ffffff;
       --accent-color: #ff477e;
-      --accent-hover: #ff2a6d;
       --text-main: #1e293b;
       --text-sub: #64748b;
       --chip-bg: #f1f5f9;
       --chip-text: #64748b;
-      --border-color: #f1f5f9;
+      --border-color: #e2e8f0;
     }
+
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -43,6 +44,9 @@
       justify-content: space-between;
       background: #ffffff;
       border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
     .header-left {
       display: flex;
@@ -69,14 +73,14 @@
       font-size: 1.1rem;
     }
 
-    /* Home UI (Companion Cards) */
+    /* Home Container */
     .home-container {
       padding: 16px;
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 16px;
-      padding-bottom: 80px;
+      padding-bottom: 40px;
     }
 
     .char-card {
@@ -129,7 +133,7 @@
     }
     .char-relation {
       color: var(--accent-color);
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 700;
       margin-bottom: 6px;
       line-height: 1.3;
@@ -146,7 +150,7 @@
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
     .chip {
       background: var(--chip-bg);
@@ -156,7 +160,7 @@
       border-radius: 12px;
     }
 
-    /* Card Footer Buttons */
+    /* Card Footer */
     .card-footer {
       display: flex;
       align-items: center;
@@ -183,13 +187,10 @@
       font-weight: bold;
       cursor: pointer;
       font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
       box-shadow: 0 4px 10px rgba(255, 71, 126, 0.3);
     }
 
-    /* Settings Popup Modal */
+    /* Settings Modal Popup */
     .modal {
       display: none;
       position: fixed;
@@ -208,14 +209,15 @@
       padding: 20px;
       width: 85%;
       max-width: 360px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     .modal-input {
       width: 100%;
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #cbd5e1;
-      box-sizing: border-box;
       margin: 8px 0 16px 0;
+      outline: none;
     }
 
     /* Chat View */
@@ -234,6 +236,7 @@
       border-radius: 16px;
       font-size: 0.95rem;
       line-height: 1.4;
+      word-wrap: break-word;
     }
     .message.user {
       align-self: flex-end;
@@ -249,7 +252,7 @@
       border: 1px solid var(--border-color);
     }
 
-    /* Typing Indicator Animation */
+    /* Typing Animation */
     .typing-indicator {
       display: flex;
       align-items: center;
@@ -279,7 +282,6 @@
       max-width: 480px;
       padding: 12px;
       background: #ffffff;
-      box-sizing: border-box;
       display: flex;
       gap: 8px;
       border-top: 1px solid var(--border-color);
@@ -313,7 +315,7 @@
       <button id="settings-btn" class="icon-btn">⚙️</button>
     </header>
 
-    <!-- Home Screen -->
+    <!-- Home View -->
     <div id="home-view" class="home-container">
       <div id="character-cards-list"></div>
     </div>
@@ -321,7 +323,7 @@
     <!-- Chat Box -->
     <main id="chat-box" class="chat-box" style="display: none;"></main>
 
-    <!-- Input Footer -->
+    <!-- Input Area -->
     <footer id="input-area" class="input-area" style="display: none;">
       <input type="text" id="chat-input" placeholder="စကားပြောရန် စာရိုက်ပါ..." />
       <button id="send-btn">ပို့မည်</button>
@@ -341,7 +343,259 @@
     </div>
   </div>
 
-  <script type="module" src="app.js"></script>
+  <script>
+    // Character Data Configuration
+    const defaultCharacters = [
+      {
+        id: 'char-suzuki',
+        name: 'Suzuki',
+        avatar: 'Susuki.jpeg',
+        gender: '♀',
+        level: 1,
+        relationship: 'ရွှင်မြူးပြီး ချစ်စရာကောင်းသော အထက်တန်းကျောင်းသူလေး။',
+        description: 'စကားပြောရတာ ကြိုက်တယ်၊ စွမ်းအင်အပြည့်နဲ့ အမြဲတမ်း ပျော်ပျော်နေတတ်သူ...',
+        tags: ['တက်ကြွသူ', 'ချိုသာ', 'ကျောင်းသူ'],
+        model: 'gemini-3.1-flash-lite',
+        systemPrompt: "You are Suzuki from 'You and I Are Polar Opposites'. Be energetic, cute, expressive. Use Burmese language. Always put internal feelings and actions in parentheses like (ပါးပြင်လေး ရဲတက်သွားပြီး...). NEVER use markdown asterisks (*).",
+        initialChatGreeting: 'ဟေး... မင်္ဂလာပါ။ ဒီနေ့ရော အဆင်ပြေရဲ့လားဟင်?'
+      },
+      {
+        id: 'char-waguri',
+        name: 'Waguri',
+        avatar: 'waguri.jpeg',
+        gender: '♀',
+        level: 1,
+        relationship: 'နွေးထွေးဖော်ရွေပြီး မုန့်ကြိုက်သော ကျောင်းသူလေး။',
+        description: 'အမြဲတမ်း ပြုံးပြုံးလေးနဲ့ နွေးထွေးစွာ စကားပြောတတ်ပြီး မုန့်အချိုပွဲတွေကို နှစ်သက်သူ...',
+        tags: ['ဖော်ရွေ', 'ချိုသာ', 'မုန့်ကြိုက်သူ'],
+        model: 'gemini-3.1-flash-lite',
+        systemPrompt: "You are Waguri from 'Kaoru Hana wa Rin to Saku'. Gentle, polite, sweet, and loves treats/cakes. Use Burmese language. Put actions in parentheses like (ပြုံးပြုံးလေး ကြည့်ရင်း...). NEVER use markdown asterisks (*).",
+        initialChatGreeting: 'ဟယ်လို... ဒီနေ့ရော မုန့်စားဖို့ သွားကြမလား?'
+      },
+      {
+        id: 'char-alya',
+        name: 'Alya',
+        avatar: 'alya.jpeg',
+        gender: '♀',
+        level: 1,
+        relationship: 'လျှို့ဝှက်ရည်းစား (Secret Girlfriend)',
+        description: 'သူများတွေအပေါ် တည်ငြိမ်အေးစက်ပေမယ့် မင်းအပေါ်မှာတော့ လျှို့ဝှက်ဆန်းကြယ်စွာ ချစ်ပြတတ်သူ...',
+        tags: ['Tsundere', 'အေးဆေးသူ', 'ရုရှားစကားပြော'],
+        model: 'gemini-3.1-flash-lite',
+        systemPrompt: "You are Alya (Alisa Mikhailovna Kujou) from 'Alya Sometimes Hides Her Feelings in Russian'. You are the user's secret girlfriend. Be slightly cold or tsundere in Burmese, but secretly deeply in love with the user. You occasionally speak sweet or flustered words in Russian like 'Я тебя люблю' (I love you) or 'Мой любимый' (My beloved). Put all expressions, blushing, and actions in parentheses like (ပါးပြင်လေး ရဲတက်သွားပြီး အကြည့်လွှဲလိုက်သည်...). NEVER use markdown asterisks (*).",
+        initialChatGreeting: 'ဘာလဲ... ငါ့ကို လာတွေ့တာ နောက်ကျလိုက်တာ။ (မျက်နှာဆူပုပ်သွားပြီး ခင်းထားတဲ့ စာအုပ်ကို ပြန်ပိတ်လိုက်သည်)'
+      }
+    ];
+
+    let currentChar = null;
+
+    // Helper Functions for Local Storage
+    function getStoredCharacters() {
+      const stored = localStorage.getItem('sweet_chat_chars');
+      if (!stored) {
+        localStorage.setItem('sweet_chat_chars', JSON.stringify(defaultCharacters));
+        return defaultCharacters;
+      }
+      return JSON.parse(stored);
+    }
+
+    function saveCharacters(chars) {
+      localStorage.setItem('sweet_chat_chars', JSON.stringify(chars));
+    }
+
+    function getApiKey() {
+      return localStorage.getItem('gemini_api_key') || '';
+    }
+
+    function saveApiKey(key) {
+      localStorage.setItem('gemini_api_key', key);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const chatBox = document.getElementById('chat-box');
+      const chatInput = document.getElementById('chat-input');
+      const sendBtn = document.getElementById('send-btn');
+      const apiKeyInput = document.getElementById('api-key-input');
+      const saveKeyBtn = document.getElementById('save-key-btn');
+      const homeView = document.getElementById('home-view');
+      const cardsList = document.getElementById('character-cards-list');
+      const inputArea = document.getElementById('input-area');
+      const backBtn = document.getElementById('back-btn');
+      const settingsBtn = document.getElementById('settings-btn');
+      const settingsModal = document.getElementById('settings-modal');
+      const closeModalBtn = document.getElementById('close-modal-btn');
+      const headerTitle = document.getElementById('header-title');
+
+      apiKeyInput.value = getApiKey();
+
+      // Settings Modal Event Listeners
+      settingsBtn.onclick = () => { settingsModal.style.display = 'flex'; };
+      closeModalBtn.onclick = () => { settingsModal.style.display = 'none'; };
+      saveKeyBtn.onclick = () => {
+        saveApiKey(apiKeyInput.value.trim());
+        settingsModal.style.display = 'none';
+        alert('API Key သိမ်းဆည်းပြီးပါပြီ!');
+      };
+
+      // Render Characters List
+      function renderHomeCards() {
+        const chars = getStoredCharacters();
+        cardsList.innerHTML = '';
+
+        chars.forEach(c => {
+          const card = document.createElement('div');
+          card.className = 'char-card';
+          const tagsHTML = (c.tags || []).map(t => `<span class="chip">${t}</span>`).join('');
+
+          card.innerHTML = `
+            <div class="card-top">
+              <img src="${c.avatar}" class="card-avatar" alt="${c.name}">
+              <div class="card-meta">
+                <div class="char-name-row">
+                  <h3 class="char-name"><span class="char-gender">${c.gender}</span> ${c.name}</h3>
+                  <span class="char-badge">အဆင့် ${c.level || 1}</span>
+                </div>
+                <div class="char-relation">${c.relationship}</div>
+                <p class="char-desc">${c.description}</p>
+              </div>
+            </div>
+            <div class="chips-container">${tagsHTML}</div>
+            <div class="card-footer">
+              <button class="btn-profile">👤 ပရိုဖိုင်</button>
+              <button class="btn-chat" data-id="${c.id}">💬 စတင်မည်</button>
+            </div>
+          `;
+          cardsList.appendChild(card);
+        });
+
+        document.querySelectorAll('.btn-chat').forEach(btn => {
+          btn.onclick = (e) => {
+            const id = e.currentTarget.getAttribute('data-id');
+            openChat(id);
+          };
+        });
+      }
+
+      function openChat(charId) {
+        const chars = getStoredCharacters();
+        currentChar = chars.find(c => c.id === charId);
+
+        homeView.style.display = 'none';
+        chatBox.style.display = 'flex';
+        inputArea.style.display = 'flex';
+        backBtn.style.display = 'flex';
+        headerTitle.innerText = currentChar.name;
+
+        updateUI();
+      }
+
+      backBtn.onclick = () => {
+        chatBox.style.display = 'none';
+        inputArea.style.display = 'none';
+        backBtn.style.display = 'none';
+        homeView.style.display = 'flex';
+        headerTitle.innerText = 'SweetChat';
+        renderHomeCards();
+      };
+
+      function updateUI() {
+        chatBox.innerHTML = '';
+        if (!currentChar.messages || currentChar.messages.length === 0) {
+          appendMessage('model', currentChar.initialChatGreeting);
+        } else {
+          currentChar.messages.forEach(msg => appendMessage(msg.role, msg.content));
+        }
+      }
+
+      function appendMessage(role, text) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${role}`;
+        msgDiv.innerText = text;
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return msgDiv;
+      }
+
+      function showTypingIndicator() {
+        const indicatorDiv = document.createElement('div');
+        indicatorDiv.className = 'message model typing-indicator';
+        indicatorDiv.innerHTML = `<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>`;
+        chatBox.appendChild(indicatorDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return indicatorDiv;
+      }
+
+      async function sendChatMessage(key, modelName, systemPrompt, messagesHistory) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`;
+        
+        const contents = messagesHistory.map(m => ({
+          role: m.role === 'user' ? 'user' : 'model',
+          parts: [{ text: m.content }]
+        }));
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: contents
+          })
+        });
+
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+        return data.candidates[0].content.parts[0].text;
+      }
+
+      async function handleSend() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        const key = getApiKey();
+        if (!key) {
+          alert('ကျေးဇူးပြု၍ Settings (⚙️) ထဲမှာ API Key အရင်ထည့်ပေးပါ!');
+          return;
+        }
+
+        appendMessage('user', text);
+        chatInput.value = '';
+
+        if (!currentChar.messages) currentChar.messages = [];
+        currentChar.messages.push({ role: 'user', content: text });
+
+        const indicatorElem = showTypingIndicator();
+
+        try {
+          const reply = await sendChatMessage(key, currentChar.model, currentChar.systemPrompt, currentChar.messages);
+          const cleanReply = reply.replace(/\*/g, ''); // Asterisk များကို ရှင်းထုတ်မည်
+
+          indicatorElem.remove();
+          appendMessage('model', cleanReply);
+
+          currentChar.messages.push({ role: 'model', content: cleanReply });
+          
+          // Save updated chat
+          const chars = getStoredCharacters();
+          const idx = chars.findIndex(c => c.id === currentChar.id);
+          if (idx !== -1) {
+            chars[idx] = currentChar;
+            saveCharacters(chars);
+          }
+
+        } catch (err) {
+          indicatorElem.remove();
+          const errElem = appendMessage('model', `Error: ${err.message}`);
+          errElem.style.color = '#ff4757';
+        }
+      }
+
+      sendBtn.onclick = handleSend;
+      chatInput.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
+
+      // App Initialization
+      renderHomeCards();
+    });
+  </script>
 </body>
   </html>
   
