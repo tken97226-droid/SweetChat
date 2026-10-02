@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingsBtn = document.getElementById('settings-btn');
   const settingsModal = document.getElementById('settings-modal');
   const closeModalBtn = document.getElementById('close-modal-btn');
+  const navNewChat = document.getElementById('nav-new-chat');
+  const bottomNav = document.getElementById('bottom-nav');
   const headerTitle = document.getElementById('header-title');
 
   apiKeyInput.value = getApiKey() || '';
@@ -30,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     alert('API Key သိမ်းဆည်းပြီးပါပြီ!');
   });
 
-  // Home Screen Rendering
+  // Home Screen Character List Rendering
   function renderHomeCards() {
     const chars = getStoredCharacters();
     cardsList.innerHTML = '';
@@ -38,25 +40,20 @@ document.addEventListener('DOMContentLoaded', () => {
     chars.forEach(c => {
       const card = document.createElement('div');
       card.className = 'char-card';
-      
-      const tagsHTML = (c.tags || []).map(t => `<span class="chip">${t}</span>`).join('');
-
       card.innerHTML = `
         <div class="card-top">
           <img src="${c.avatar || 'Susuki.jpeg'}" class="card-avatar" alt="${c.name}">
           <div class="card-meta">
-            <div class="char-name-row">
-              <h3 class="char-name"><span class="char-gender">${c.gender || '♀'}</span> ${c.name}</h3>
-              <span class="char-badge">အဆင့် ${c.level || 1}</span>
+            <div class="char-name">
+              ${c.name}
+              <span class="char-badge">Lv.${c.level || 1}</span>
             </div>
-            <div class="char-relation">${c.relationship}</div>
-            <p class="char-desc">${c.description || ''}</p>
+            <div class="char-relation">${c.relationship || 'Companion'}</div>
+            <p class="char-desc">${c.personality || ''}</p>
           </div>
         </div>
-        <div class="chips-container">${tagsHTML}</div>
-        <div class="card-footer">
-          <button class="btn-profile">👤 ပရိုဖိုင်</button>
-          <button class="btn-chat" data-id="${c.id}">💬 စတင်မည်</button>
+        <div class="card-actions">
+          <button class="btn-chat" data-id="${c.id}">Chat</button>
         </div>
       `;
       cardsList.appendChild(card);
@@ -64,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.btn-chat').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const charId = e.currentTarget.getAttribute('data-id');
+        const charId = e.target.getAttribute('data-id');
         openChat(charId);
       });
     });
@@ -75,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentChar = getActiveCharacter();
 
     homeView.style.display = 'none';
+    bottomNav.style.display = 'none';
     chatBox.style.display = 'flex';
     inputArea.style.display = 'flex';
     backBtn.style.display = 'flex';
@@ -88,8 +86,17 @@ document.addEventListener('DOMContentLoaded', () => {
     inputArea.style.display = 'none';
     backBtn.style.display = 'none';
     homeView.style.display = 'flex';
+    bottomNav.style.display = 'flex';
     headerTitle.innerText = 'SweetChat';
     renderHomeCards();
+  });
+
+  navNewChat.addEventListener('click', () => {
+    if (currentChar && confirm('လက်ရှိ စကားပြောထားတာတွေကို ရှင်းထုတ်ပြီး New Chat ပြန်စမလား?')) {
+      currentChar.messages = [];
+      saveCurrentCharState();
+      updateUI();
+    }
   });
 
   function saveCurrentCharState() {
@@ -103,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateUI() {
     chatBox.innerHTML = '';
+
     if (!currentChar.messages || currentChar.messages.length === 0) {
       appendMessage('model', currentChar.initialChatGreeting);
     } else {
@@ -119,9 +127,11 @@ document.addEventListener('DOMContentLoaded', () => {
     return msgDiv;
   }
 
+  // Messenger-style Typing Animation
   function showTypingIndicator() {
     const indicatorDiv = document.createElement('div');
     indicatorDiv.className = 'message model typing-indicator';
+    indicatorDiv.id = 'typing-indicator';
     indicatorDiv.innerHTML = `
       <div class="typing-dot"></div>
       <div class="typing-dot"></div>
@@ -154,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const rawReply = await sendChatMessage(key, currentChar.model, currentChar.systemPrompt, currentChar.messages);
       const { cleanText, affectionDelta } = evaluateAffection(rawReply, text);
 
-      indicatorElem.remove();
+      indicatorElem.remove(); // Typing animation ကို ဖျက်ပြီး စာအမှန်ထည့်မည်
       appendMessage('model', cleanText);
 
       currentChar.messages.push({ role: 'model', content: cleanText });
@@ -175,4 +185,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderHomeCards();
 });
-    
+                          
