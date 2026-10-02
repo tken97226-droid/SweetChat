@@ -1,8 +1,27 @@
-import { getStoredCharacters, saveCharacters, getActiveCharacter, setActiveCharacterId, getApiKey, saveApiKey } from './storage.js';
-import { sendChatMessage } from './api.js';
-import { evaluateAffection } from './affectionEngine.js';
+import { defaultCharacters } from './defaultCharacters.js';
 
 let currentChar = null;
+
+function getStoredCharacters() {
+  const stored = localStorage.getItem('sweet_chat_chars');
+  if (!stored) {
+    localStorage.setItem('sweet_chat_chars', JSON.stringify(defaultCharacters));
+    return defaultCharacters;
+  }
+  return JSON.parse(stored);
+}
+
+function saveCharacters(chars) {
+  localStorage.setItem('sweet_chat_chars', JSON.stringify(chars));
+}
+
+function getApiKey() {
+  return localStorage.getItem('openrouter_api_key') || '';
+}
+
+function saveApiKey(key) {
+  localStorage.setItem('openrouter_api_key', key);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const chatBox = document.getElementById('chat-box');
@@ -17,22 +36,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingsBtn = document.getElementById('settings-btn');
   const settingsModal = document.getElementById('settings-modal');
   const closeModalBtn = document.getElementById('close-modal-btn');
-  const navNewChat = document.getElementById('nav-new-chat');
-  const bottomNav = document.getElementById('bottom-nav');
   const headerTitle = document.getElementById('header-title');
 
-  apiKeyInput.value = getApiKey() || '';
+  apiKeyInput.value = getApiKey();
 
-  // Settings Modal Controls
-  settingsBtn.addEventListener('click', () => settingsModal.style.display = 'flex');
-  closeModalBtn.addEventListener('click', () => settingsModal.style.display = 'none');
-  saveKeyBtn.addEventListener('click', () => {
+  settingsBtn.onclick = () => { settingsModal.style.display = 'flex'; };
+  closeModalBtn.onclick = () => { settingsModal.style.display = 'none'; };
+  saveKeyBtn.onclick = () => {
     saveApiKey(apiKeyInput.value.trim());
     settingsModal.style.display = 'none';
-    alert('API Key သိမ်းဆည်းပြီးပါပြီ!');
-  });
+    alert('OpenRouter API Key Saved Successfully!');
+  };
 
-  // Home Screen Character List Rendering
   function renderHomeCards() {
     const chars = getStoredCharacters();
     cardsList.innerHTML = '';
@@ -40,19 +55,20 @@ document.addEventListener('DOMContentLoaded', () => {
     chars.forEach(c => {
       const card = document.createElement('div');
       card.className = 'char-card';
+
       card.innerHTML = `
         <div class="card-top">
-          <img src="${c.avatar || 'Susuki.jpeg'}" class="card-avatar" alt="${c.name}">
+          <img src="${c.avatar}" class="card-avatar" alt="${c.name}">
           <div class="card-meta">
-            <div class="char-name">
-              ${c.name}
+            <div class="char-name-row">
+              <h3 class="char-name">${c.name}</h3>
               <span class="char-badge">Lv.${c.level || 1}</span>
             </div>
-            <div class="char-relation">${c.relationship || 'Companion'}</div>
-            <p class="char-desc">${c.personality || ''}</p>
+            <div class="char-relation">${c.relationship}</div>
+            <p class="char-desc">${c.description}</p>
           </div>
         </div>
-        <div class="card-actions">
+        <div class="card-footer">
           <button class="btn-chat" data-id="${c.id}">Chat</button>
         </div>
       `;
@@ -60,19 +76,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelectorAll('.btn-chat').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const charId = e.target.getAttribute('data-id');
-        openChat(charId);
-      });
+      btn.onclick = (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        openChat(id);
+      };
     });
   }
 
   function openChat(charId) {
-    setActiveCharacterId(charId);
-    currentChar = getActiveCharacter();
+    const chars = getStoredCharacters();
+    currentChar = chars.find(c => c.id === charId);
 
     homeView.style.display = 'none';
-    bottomNav.style.display = 'none';
     chatBox.style.display = 'flex';
     inputArea.style.display = 'flex';
     backBtn.style.display = 'flex';
@@ -81,36 +96,17 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI();
   }
 
-  backBtn.addEventListener('click', () => {
+  backBtn.onclick = () => {
     chatBox.style.display = 'none';
     inputArea.style.display = 'none';
     backBtn.style.display = 'none';
-    homeView.style.display = 'flex';
-    bottomNav.style.display = 'flex';
+    homeView.style.display = 'block';
     headerTitle.innerText = 'SweetChat';
     renderHomeCards();
-  });
-
-  navNewChat.addEventListener('click', () => {
-    if (currentChar && confirm('လက်ရှိ စကားပြောထားတာတွေကို ရှင်းထုတ်ပြီး New Chat ပြန်စမလား?')) {
-      currentChar.messages = [];
-      saveCurrentCharState();
-      updateUI();
-    }
-  });
-
-  function saveCurrentCharState() {
-    const allChars = getStoredCharacters();
-    const idx = allChars.findIndex(c => c.id === currentChar.id);
-    if (idx !== -1) {
-      allChars[idx] = currentChar;
-      saveCharacters(allChars);
-    }
-  }
+  };
 
   function updateUI() {
     chatBox.innerHTML = '';
-
     if (!currentChar.messages || currentChar.messages.length === 0) {
       appendMessage('model', currentChar.initialChatGreeting);
     } else {
@@ -127,19 +123,47 @@ document.addEventListener('DOMContentLoaded', () => {
     return msgDiv;
   }
 
-  // Messenger-style Typing Animation
   function showTypingIndicator() {
     const indicatorDiv = document.createElement('div');
     indicatorDiv.className = 'message model typing-indicator';
-    indicatorDiv.id = 'typing-indicator';
-    indicatorDiv.innerHTML = `
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-    `;
+    indicatorDiv.innerHTML = `<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>`;
     chatBox.appendChild(indicatorDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
     return indicatorDiv;
+  }
+
+  // OpenRouter API Fetch Logic
+  async function sendChatMessage(key, modelName, systemPrompt, messagesHistory) {
+    const url = 'https://openrouter.ai/api/v1/chat/completions';
+    
+    // OpenRouter / OpenAI format payload
+    const formattedMessages = [
+      { role: 'system', content: systemPrompt },
+      ...messagesHistory.map(m => ({
+        role: m.role === 'user' ? 'user' : 'assistant',
+        content: m.content
+      }))
+    ];
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': window.location.origin || 'https://github.io',
+        'X-Title': 'SweetChat'
+      },
+      body: JSON.stringify({
+        model: modelName || 'google/gemini-2.0-flash-001',
+        messages: formattedMessages
+      })
+    });
+
+    const data = await response.json();
+    if (data.error) {
+      throw new Error(data.error.message || 'OpenRouter API Error');
+    }
+    return data.choices[0].message.content;
   }
 
   async function handleSend() {
@@ -148,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const key = getApiKey();
     if (!key) {
-      alert('ကျေးဇူးပြု၍ Settings (⚙️) ထဲမှာ API Key အရင်ထည့်ပေးပါ!');
+      alert('ကျေးဇူးပြု၍ Settings (⚙️) ထဲမှာ OpenRouter API Key အရင်ထည့်ပေးပါ!');
       return;
     }
 
@@ -161,28 +185,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const indicatorElem = showTypingIndicator();
 
     try {
-      const rawReply = await sendChatMessage(key, currentChar.model, currentChar.systemPrompt, currentChar.messages);
-      const { cleanText, affectionDelta } = evaluateAffection(rawReply, text);
+      const reply = await sendChatMessage(key, currentChar.model, currentChar.systemPrompt, currentChar.messages);
+      const cleanReply = reply.replace(/\*/g, '');
 
-      indicatorElem.remove(); // Typing animation ကို ဖျက်ပြီး စာအမှန်ထည့်မည်
-      appendMessage('model', cleanText);
+      indicatorElem.remove();
+      appendMessage('model', cleanReply);
 
-      currentChar.messages.push({ role: 'model', content: cleanText });
-      currentChar.affection = (currentChar.affection || 0) + affectionDelta;
-      saveCurrentCharState();
+      currentChar.messages.push({ role: 'model', content: cleanReply });
+      
+      const chars = getStoredCharacters();
+      const idx = chars.findIndex(c => c.id === currentChar.id);
+      if (idx !== -1) {
+        chars[idx] = currentChar;
+        saveCharacters(chars);
+      }
 
     } catch (err) {
       indicatorElem.remove();
       const errElem = appendMessage('model', `Error: ${err.message}`);
-      errElem.style.color = '#ff4757';
+      errElem.style.color = '#ef4444';
     }
   }
 
-  sendBtn.addEventListener('click', handleSend);
-  chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleSend();
-  });
+  sendBtn.onclick = handleSend;
+  chatInput.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
 
   renderHomeCards();
 });
-                          
+                                              
