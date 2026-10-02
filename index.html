@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<html lang="my">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SweetChat</title>
-  <link rel="stylesheet" href="style.css">
   <style>
     :root {
-      --bg-color: #0b1120;
-      --card-bg: #151e32;
-      --accent-color: #f43f5e;
-      --accent-hover: #e11d48;
+      --bg-color: #0b0f19;
+      --card-bg: #151c2e;
+      --accent-color: #ff3b68;
+      --accent-hover: #e02e55;
       --text-main: #f8fafc;
       --text-sub: #94a3b8;
-      --chip-bg: #1e293b;
+      --border-color: #1e293b;
     }
+
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -31,35 +32,36 @@
       display: flex;
       flex-direction: column;
       position: relative;
+      background: var(--bg-color);
     }
 
-    /* Header Design */
+    /* Header */
     .header {
       padding: 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #1e293b;
+      background: var(--bg-color);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
     .header-left {
       display: flex;
       align-items: center;
       gap: 12px;
     }
-    .brand-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-    }
     .brand-title {
-      font-size: 1.2rem;
-      font-weight: bold;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #ffffff;
       margin: 0;
     }
     .icon-btn {
       background: #1e293b;
       border: none;
-      color: var(--text-main);
+      color: #94a3b8;
       width: 38px;
       height: 38px;
       border-radius: 50%;
@@ -70,33 +72,33 @@
       font-size: 1.1rem;
     }
 
-    /* Home View (Companion Cards) */
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #64748b;
+      letter-spacing: 1px;
+      margin: 12px 16px 4px 16px;
+      text-transform: uppercase;
+    }
+
+    /* Home View */
     .home-container {
-      padding: 16px;
+      padding: 12px 16px;
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 16px;
       padding-bottom: 80px;
     }
-    .section-title {
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      color: var(--text-sub);
-      text-transform: uppercase;
-      margin: 8px 0 4px 0;
-    }
 
     .char-card {
       background: var(--card-bg);
-      border-radius: 20px;
-      padding: 18px;
+      border-radius: 18px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      border: 1px solid #1e293b;
+      border: 1px solid var(--border-color);
     }
     .card-top {
       display: flex;
@@ -105,40 +107,43 @@
     .card-avatar {
       width: 65px;
       height: 65px;
-      border-radius: 18px;
+      border-radius: 50%;
       object-fit: cover;
     }
     .card-meta {
       flex: 1;
     }
-    .char-name {
-      font-size: 1.1rem;
-      font-weight: bold;
-      margin: 0 0 4px 0;
+    .char-name-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    .char-name {
+      font-size: 1.15rem;
+      font-weight: bold;
+      margin: 0;
+      color: #ffffff;
     }
     .char-badge {
-      background: #2a1524;
-      color: #f43f5e;
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 10px;
+      color: #ef4444;
+      font-size: 0.8rem;
+      font-weight: 600;
     }
     .char-relation {
-      color: #f43f5e;
+      color: #ff3b68;
       font-size: 0.85rem;
-      font-weight: 500;
-      margin-bottom: 6px;
+      font-weight: 600;
+      margin-bottom: 8px;
     }
     .char-desc {
       font-size: 0.85rem;
       color: var(--text-sub);
-      line-height: 1.35;
+      line-height: 1.4;
       margin: 0;
     }
-    .card-actions {
+
+    .card-footer {
       display: flex;
       justify-content: flex-end;
       margin-top: 4px;
@@ -147,44 +152,14 @@
       background: var(--accent-color);
       color: white;
       border: none;
-      padding: 8px 20px;
+      padding: 8px 24px;
       border-radius: 12px;
       font-weight: bold;
       cursor: pointer;
       font-size: 0.9rem;
     }
 
-    /* Bottom Navigation Bar */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 480px;
-      height: 60px;
-      background: #0f172a;
-      border-top: 1px solid #1e293b;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-    }
-    .nav-item {
-      background: none;
-      border: none;
-      color: var(--text-sub);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 0.75rem;
-      gap: 3px;
-      cursor: pointer;
-    }
-    .nav-item.active {
-      color: var(--accent-color);
-    }
-
-    /* Settings Modal Popup */
+    /* Settings Modal */
     .modal {
       display: none;
       position: fixed;
@@ -203,21 +178,18 @@
       padding: 20px;
       width: 85%;
       max-width: 360px;
-      border: 1px solid #1e293b;
-    }
-    .modal-content h3 {
-      margin-top: 0;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
     }
     .modal-input {
       width: 100%;
       padding: 10px;
       border-radius: 8px;
-      border: 1px solid #1e293b;
-      background: #0b1120;
+      border: 1px solid var(--border-color);
+      background: #0b0f19;
       color: white;
-      box-sizing: border-box;
-      margin-top: 8px;
-      margin-bottom: 16px;
+      margin: 10px 0 16px 0;
+      outline: none;
     }
 
     /* Chat View */
@@ -232,10 +204,11 @@
     }
     .message {
       max-width: 80%;
-      padding: 10px 14px;
-      border-radius: 16px;
+      padding: 12px 16px;
+      border-radius: 18px;
       font-size: 0.95rem;
       line-height: 1.4;
+      word-wrap: break-word;
     }
     .message.user {
       align-self: flex-end;
@@ -245,22 +218,23 @@
     }
     .message.model {
       align-self: flex-start;
-      background: #1e293b;
-      color: var(--text-main);
+      background: #ffffff;
+      color: #0f172a;
       border-bottom-left-radius: 4px;
     }
 
-    /* Messenger Typing Indicator Animation */
+    /* Typing Indicator */
     .typing-indicator {
       display: flex;
       align-items: center;
       gap: 4px;
       padding: 12px 16px;
+      background: #ffffff !important;
     }
     .typing-dot {
-      width: 7px;
-      height: 7px;
-      background: var(--text-sub);
+      width: 6px;
+      height: 6px;
+      background: var(--accent-color);
       border-radius: 50%;
       animation: typing 1.4s infinite ease-in-out both;
     }
@@ -279,17 +253,16 @@
       width: 100%;
       max-width: 480px;
       padding: 12px;
-      background: #0f172a;
-      box-sizing: border-box;
+      background: var(--bg-color);
       display: flex;
       gap: 8px;
-      border-top: 1px solid #1e293b;
+      border-top: 1px solid var(--border-color);
     }
     .input-area input {
       flex: 1;
       background: #1e293b;
       border: none;
-      padding: 10px 16px;
+      padding: 12px 16px;
       border-radius: 20px;
       color: white;
       outline: none;
@@ -298,7 +271,7 @@
       background: var(--accent-color);
       color: white;
       border: none;
-      padding: 0 16px;
+      padding: 0 20px;
       border-radius: 20px;
       font-weight: bold;
       cursor: pointer;
@@ -315,41 +288,33 @@
       <button id="settings-btn" class="icon-btn">⚙️</button>
     </header>
 
-    <!-- Home View -->
-    <div id="home-view" class="home-container">
+    <div id="home-view">
       <div class="section-title">OFFICIAL COMPANIONS</div>
-      <div id="character-cards-list"></div>
+      <div id="character-cards-list" class="home-container"></div>
     </div>
 
-    <!-- Chat View -->
     <main id="chat-box" class="chat-box" style="display: none;"></main>
 
-    <!-- Input Box -->
     <footer id="input-area" class="input-area" style="display: none;">
       <input type="text" id="chat-input" placeholder="စကားပြောရန် စာရိုက်ပါ..." />
-      <button id="send-btn">Send</button>
+      <button id="send-btn">ပို့မည်</button>
     </footer>
-
-    <!-- Bottom Nav -->
-    <nav id="bottom-nav" class="bottom-nav">
-      <button class="nav-item active">🏠 Home</button>
-      <button id="nav-new-chat" class="nav-item">💬 New Chat</button>
-    </nav>
   </div>
 
-  <!-- Settings Modal Popup -->
+  <!-- Settings Modal -->
   <div id="settings-modal" class="modal">
     <div class="modal-content">
-      <h3>Settings</h3>
-      <label style="font-size: 0.85rem; color: var(--text-sub);">API Key ထည့်သွင်းပါ -</label>
-      <input type="password" id="api-key-input" class="modal-input" placeholder="Enter API Key" />
+      <h3 style="margin-top:0;">OpenRouter API Settings</h3>
+      <label style="font-size: 0.85rem; color: var(--text-sub);">OpenRouter API Key ထည့်ပါ -</label>
+      <input type="password" id="api-key-input" class="modal-input" placeholder="sk-or-v1-..." />
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
-        <button id="close-modal-btn" style="background: transparent; border: none; color: white; cursor: pointer;">Cancel</button>
-        <button id="save-key-btn" class="btn-chat">Save</button>
+        <button id="close-modal-btn" style="background: transparent; border: none; color: #94a3b8; cursor: pointer;">Cancel</button>
+        <button id="save-key-btn" style="background: var(--accent-color); color: white; border: none; padding: 6px 16px; border-radius: 8px; cursor: pointer;">Save</button>
       </div>
     </div>
   </div>
 
   <script type="module" src="app.js"></script>
 </body>
-</html>
+        </html>
+        
