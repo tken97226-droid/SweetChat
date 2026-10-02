@@ -1,64 +1,44 @@
-import { FREE_MODELS } from './config.js';
-
 export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messagesHistory) {
   if (!apiKey) {
-    throw new Error('API Key မရှိပါ။ Settings ထဲတွင် API Key ထည့်သွင်းပေးပါ။');
+    throw new Error('API Key မရှိပါ။ OpenRouter API Key ကို ထည့်သွင်းပေးပါ။');
   }
 
-  const modelsToTry = [
-    selectedModel,
-    ...FREE_MODELS.filter(m => m !== selectedModel)
+  // OpenRouter Free Roleplay Model ( သို့မဟုတ် ကြိုက်နှစ်သက်ရာ Model နာမည် )
+  const modelToUse = selectedModel || 'meta-llama/llama-3.1-8b-instruct:free';
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    ...messagesHistory.map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'assistant',
+      content: msg.content
+    }))
   ];
 
-  let lastError = null;
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': window.location.origin, // GitHub Pages domain
+      'X-Title': 'SweetChat'
+    },
+    body: JSON.stringify({
+      model: modelToUse,
+      messages: messages,
+      temperature: 0.85,
+      max_tokens: 1024
+    })
+  });
 
-  for (const model of modelsToTry) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-      const contents = messagesHistory.map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.content }]
-      }));
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: contents,
-          generationConfig: {
-            temperature: 0.85,
-            maxOutputTokens: 1024,
-            topP: 0.95
-          },
-          safetySettings: [
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
-          ]
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || `HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-      const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      if (!replyText) throw new Error('Response တုံ့ပြန်မှု မရှိပါ။');
-
-      return replyText;
-
-    } catch (err) {
-      console.warn(`Model ${model} ပျက်ကွက်ပါသည်:`, err.message);
-      lastError = err;
-    }
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || `HTTP ${response.status}`);
   }
 
-  throw lastError || new Error('Model အားလုံး တုံ့ပြန်ရန် ပျက်ကွက်ပါသည်။');
-          }
-    
+  const data = await response.json();
+  const replyText = data.choices?.[0]?.message?.content;
+
+  if (!replyText) throw new Error('Response တုံ့ပြန်မှု မရှိပါ။');
+
+  return replyText;
+}
