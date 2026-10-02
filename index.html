@@ -5,26 +5,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SweetChat</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .home-container {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .char-card {
+      background: #1a233a;
+      color: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .char-card img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .char-card-info {
+      flex: 1;
+    }
+    .char-card-info h3 {
+      margin: 0 0 6px 0;
+      font-size: 1.1rem;
+    }
+    .char-card-info p {
+      margin: 0 0 12px 0;
+      font-size: 0.85rem;
+      color: #ccc;
+    }
+    .btn-chat-start {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-back {
+      background: transparent;
+      border: 1px solid #ffffff33;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-new-chat {
+      background: #ff4757;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+  </style>
 </head>
 <body>
   <div class="app-container">
     <header class="header">
-      <div class="char-info">
+      <div class="header-left">
+        <button id="back-btn" class="btn-back" style="display: none;">←</button>
         <img id="char-avatar" src="Susuki.jpeg" class="avatar-img" alt="Avatar" />
         <h2>SweetChat</h2>
       </div>
-      <select id="char-select" class="char-select"></select>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <button id="new-chat-btn" class="btn-new-chat" style="display: none;">New Chat</button>
+        <select id="char-select" class="char-select" style="display: none;"></select>
+      </div>
     </header>
 
     <div class="settings-bar">
-      <input type="password" id="api-key-input" placeholder="Enter Gemini API Key" />
+      <input type="password" id="api-key-input" placeholder="Enter API Key" />
       <button id="save-key-btn">Save Key</button>
       <span id="affection-badge" class="badge">Affection: 0</span>
     </div>
 
-    <main id="chat-box" class="chat-box"></main>
+    <!-- Home Screen (Character List) -->
+    <div id="home-view" class="home-container">
+      <h3 style="color: #fff; margin-top: 0;">AI မိတ်ဆွေများ</h3>
+      <div id="character-cards-list"></div>
+    </div>
 
-    <footer class="input-area">
+    <!-- Chat Screen -->
+    <main id="chat-box" class="chat-box" style="display: none;"></main>
+
+    <footer id="input-area" class="input-area" style="display: none;">
       <input type="text" id="chat-input" placeholder="စကားပြောရန် စာရိုက်ပါ..." />
       <button id="send-btn">Send</button>
     </footer>
@@ -32,5 +111,4 @@
 
   <script type="module" src="app.js"></script>
 </body>
-          </html>
-  
+</html>
