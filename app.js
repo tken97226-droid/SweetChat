@@ -54,23 +54,24 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.btn-chat-start').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const charId = e.target.getAttribute('data-id');
-        openChatAndResetHistory(charId);
+        openChatSession(charId, false); // History မဖျက်ဘဲ Chat ဖွင့်မည်
       });
     });
   }
 
-  function openChatAndResetHistory(charId) {
+  // Chat Screen ကို ဖွင့်ပေးမည့် Function (isNewChat = true ဖြစ်မှသာ History ရှင်းမည်)
+  function openChatSession(charId, isNewChat = false) {
     setActiveCharacterId(charId);
     currentChar = getActiveCharacter();
 
-    // Clear history on starting new chat session
-    currentChar.messages = [];
-    
-    const allChars = getStoredCharacters();
-    const idx = allChars.findIndex(c => c.id === currentChar.id);
-    if (idx !== -1) {
-      allChars[idx] = currentChar;
-      saveCharacters(allChars);
+    if (!currentChar.messages) {
+      currentChar.messages = [];
+    }
+
+    // New Chat Button ကို နှိပ်မှသာ မက်ဆေ့ချ်များ ရှင်းမည်
+    if (isNewChat) {
+      currentChar.messages = [];
+      saveCurrentCharState();
     }
 
     homeView.style.display = 'none';
@@ -95,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
   newChatBtn.addEventListener('click', () => {
     if (confirm('စကားပြောထားတာတွေကို ဖျက်ပြီး New Chat ပြန်စမလားဟင်?')) {
       if (currentChar) {
-        openChatAndResetHistory(currentChar.id);
+        openChatSession(currentChar.id, true);
       }
     }
   });
@@ -107,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (currentChar) charSelect.value = currentChar.id;
 
   charSelect.addEventListener('change', (e) => {
-    openChatAndResetHistory(e.target.value);
+    openChatSession(e.target.value, false);
   });
 
   saveKeyBtn.addEventListener('click', () => {
@@ -122,9 +123,11 @@ document.addEventListener('DOMContentLoaded', () => {
       charAvatar.src = currentChar.avatar;
     }
 
+    // History မရှိသေးပါက သာ နဂို မူလ Greeting ပြမည်
     if (!currentChar.messages || currentChar.messages.length === 0) {
       appendMessage('model', currentChar.initialChatGreeting);
     } else {
+      // History ရှိပါက ရှိခဲ့သမျှ မက်ဆေ့ချ်များကို UI ပေါ်ပြန်ထုတ်ပြမည်
       currentChar.messages.forEach(msg => appendMessage(msg.role, msg.content));
     }
   }
@@ -154,6 +157,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!currentChar.messages) currentChar.messages = [];
     currentChar.messages.push({ role: 'user', content: text });
 
+    // User မက်ဆေ့ချ် ရိုက်ပြီးသည်နှင့် LocalStorage ထဲ ချက်ချင်းသိမ်းမည်
+    saveCurrentCharState();
+
     const loadingElem = appendMessage('model', 'ရိုက်နေသည်...');
 
     try {
@@ -166,16 +172,22 @@ document.addEventListener('DOMContentLoaded', () => {
       currentChar.affection = (currentChar.affection || 0) + affectionDelta;
       affectionBadge.innerText = `Affection: ${currentChar.affection}`;
 
-      const allChars = getStoredCharacters();
-      const index = allChars.findIndex(c => c.id === currentChar.id);
-      if (index !== -1) {
-        allChars[index] = currentChar;
-        saveCharacters(allChars);
-      }
+      // AI တုံ့ပြန်ပြီးချိန်တွင်လည်း LocalStorage ထဲ ပြန်သိမ်းမည်
+      saveCurrentCharState();
 
     } catch (err) {
       loadingElem.innerText = `Error: ${err.message}`;
       loadingElem.classList.add('error');
+    }
+  }
+
+  // Active ဖြစ်နေသော Character ၏ Data ကို LocalStorage သို့ သိမ်းမည့် Function
+  function saveCurrentCharState() {
+    const allChars = getStoredCharacters();
+    const index = allChars.findIndex(c => c.id === currentChar.id);
+    if (index !== -1) {
+      allChars[index] = currentChar;
+      saveCharacters(allChars);
     }
   }
 
@@ -184,4 +196,4 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') handleSend();
   });
 });
-  
+        
