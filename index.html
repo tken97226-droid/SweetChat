@@ -6,25 +6,24 @@
   <title>SweetChat</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-    body { background-color: #0e1621; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    html, body { height: 100%; width: 100%; overflow: hidden; background-color: #0e1621; color: #fff; }
     
     .app-container { height: 100vh; display: flex; flex-direction: column; position: relative; overflow: hidden; }
     
-    /* Telegram Header - Sticky Fixed Position */
+    /* Telegram Header - Fixed Top */
     .header { 
+      height: 56px;
       background: #17212b; 
-      padding: 10px 14px; 
+      padding: 0 14px; 
       display: flex; 
       align-items: center; 
       justify-content: space-between; 
       border-bottom: 1px solid #232e3c; 
-      position: sticky;
-      top: 0;
-      z-index: 100;
       flex-shrink: 0;
+      z-index: 100;
     }
     .header-left { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-    .avatar-img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; }
+    .avatar-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
     .btn-back { background: transparent; border: none; color: #64b5ef; font-size: 1.4rem; cursor: pointer; padding: 4px 8px; }
     .header-user-info { display: flex; flex-direction: column; justify-content: center; }
     .header-user-info h3 { font-size: 1rem; color: #fff; font-weight: 600; }
@@ -32,7 +31,7 @@
     .btn-new-chat { background: #e53935; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
     
     /* Views */
-    .view-content { flex: 1; overflow-y: auto; display: none; flex-direction: column; padding-bottom: 60px; }
+    .view-content { flex: 1; overflow-y: auto; display: none; flex-direction: column; }
     .view-content.active { display: flex; }
 
     /* Telegram Style Chat List (Chats Tab) */
@@ -45,8 +44,8 @@
     .chat-last-msg { font-size: 0.85rem; color: #7f91a4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
     .badge { background: #2b5278; color: #64b5ef; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; }
 
-    /* Chat Screen View Inner Layout */
-    #chat-screen-view { flex: 1; display: none; flex-direction: column; height: calc(100vh - 60px); overflow: hidden; padding-bottom: 0; }
+    /* Chat Screen Inner Layout - စာရိုက်ရန် အကွက် အမြဲပေါ်စေမည့် Full Height Layout */
+    #chat-screen-view { flex: 1; display: none; flex-direction: column; height: calc(100vh - 56px); overflow: hidden; }
     #chat-screen-view.active { display: flex; }
 
     /* Telegram Style Chat Box */
@@ -88,7 +87,17 @@
       }
     }
     
-    .input-area { background: #17212b; padding: 8px 12px; display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+    /* Fixed Bottom Input Area */
+    .input-area { 
+      height: 60px;
+      background: #17212b; 
+      padding: 8px 12px; 
+      display: flex; 
+      gap: 8px; 
+      align-items: center; 
+      flex-shrink: 0; 
+      border-top: 1px solid #232e3c;
+    }
     .input-area input { flex: 1; background: #0e1621; border: 1px solid #232e3c; color: white; padding: 10px 14px; border-radius: 20px; outline: none; }
     .input-area button { background: #2b5278; color: #64b5ef; border: none; padding: 10px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; }
 
@@ -132,12 +141,12 @@
     </header>
 
     <!-- Tab 1: Chats (Character List) -->
-    <div id="chats-view" class="view-content active">
+    <div id="chats-view" class="view-content active" style="padding-bottom: 60px;">
       <div id="character-cards-list"></div>
     </div>
 
     <!-- Tab 2: Settings (API Key) -->
-    <div id="settings-view" class="view-content">
+    <div id="settings-view" class="view-content" style="padding-bottom: 60px;">
       <div class="settings-container">
         <h3>Settings</h3>
         <div class="setting-group">
@@ -179,5 +188,5 @@
 
   <script type="module" src="app.js"></script>
 </body>
-          </html>
-          
+            </html>
+            
