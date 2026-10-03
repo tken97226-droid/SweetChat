@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const modelSelect = document.getElementById('model-select');
   
   const headerTitle = document.getElementById('header-title');
+  const headerStatus = document.getElementById('header-status');
   const charAvatar = document.getElementById('char-avatar');
   const backBtn = document.getElementById('back-btn');
   const newChatBtn = document.getElementById('new-chat-btn');
@@ -23,11 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const chatScreenView = document.getElementById('chat-screen-view');
   const cardsList = document.getElementById('character-cards-list');
 
-  // Load Settings Data
   apiKeyInput.value = getApiKey();
   modelSelect.value = getSelectedModel();
 
-  // Bottom Navigation Switching Logic
   document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
       document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
@@ -39,12 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (targetTab === 'chats-view') {
         headerTitle.innerText = 'SweetChat';
+        headerStatus.style.display = 'none';
         backBtn.style.display = 'none';
         charAvatar.style.display = 'none';
         newChatBtn.style.display = 'none';
         renderHomeCards();
       } else if (targetTab === 'settings-view') {
         headerTitle.innerText = 'Settings';
+        headerStatus.style.display = 'none';
         backBtn.style.display = 'none';
         charAvatar.style.display = 'none';
         newChatBtn.style.display = 'none';
@@ -89,12 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
       saveCurrentCharState();
     }
 
-    // Hide Tab Views and Show Chat Screen View
     document.querySelectorAll('.view-content').forEach(view => view.classList.remove('active'));
     chatScreenView.classList.add('active');
 
-    // UI Header Updates
     headerTitle.innerText = currentChar.name;
+    headerStatus.style.display = 'block';
+    headerStatus.innerText = 'online';
     charAvatar.src = currentChar.avatar || 'Susuki.jpeg';
     charAvatar.style.display = 'block';
     backBtn.style.display = 'block';
@@ -109,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chatsView.classList.add('active');
     
     headerTitle.innerText = 'SweetChat';
+    headerStatus.style.display = 'none';
     backBtn.style.display = 'none';
     charAvatar.style.display = 'none';
     newChatBtn.style.display = 'none';
@@ -169,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     saveCurrentCharState();
 
-    // Messenger Typing Dots Animation
     const loadingElem = appendMessage('model', '');
     loadingElem.innerHTML = `
       <div class="typing-indicator">
@@ -212,4 +213,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderHomeCards();
 });
-        
+      
