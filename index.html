@@ -2,15 +2,23 @@
 <html lang="my">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SweetChat</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
     html, body { height: 100%; width: 100%; overflow: hidden; background-color: #0e1621; color: #fff; }
     
-    .app-container { height: 100vh; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+    /* Main Layout Fixed Heights setup */
+    .app-container { 
+      height: 100vh; 
+      height: 100dvh; /* Mobile browser dynamic height support */
+      display: flex; 
+      flex-direction: column; 
+      position: relative; 
+      overflow: hidden; 
+    }
     
-    /* Telegram Header - Fixed Top */
+    /* Fixed Top Telegram Header */
     .header { 
       height: 56px;
       background: #17212b; 
@@ -20,7 +28,7 @@
       justify-content: space-between; 
       border-bottom: 1px solid #232e3c; 
       flex-shrink: 0;
-      z-index: 100;
+      z-index: 1000;
     }
     .header-left { display: flex; align-items: center; gap: 10px; cursor: pointer; }
     .avatar-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
@@ -30,11 +38,11 @@
     .header-user-info span { font-size: 0.75rem; color: #7f91a4; }
     .btn-new-chat { background: #e53935; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
     
-    /* Views */
-    .view-content { flex: 1; overflow-y: auto; display: none; flex-direction: column; }
+    /* Tab Content Areas */
+    .view-content { flex: 1; overflow-y: auto; display: none; flex-direction: column; padding-bottom: 60px; }
     .view-content.active { display: flex; }
 
-    /* Telegram Style Chat List (Chats Tab) */
+    /* Character List View */
     .chat-list-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #17212b; cursor: pointer; }
     .chat-list-item:active { background-color: #17212b; }
     .chat-list-item img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
@@ -44,14 +52,31 @@
     .chat-last-msg { font-size: 0.85rem; color: #7f91a4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
     .badge { background: #2b5278; color: #64b5ef; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; }
 
-    /* Chat Screen Inner Layout - စာရိုက်ရန် အကွက် အမြဲပေါ်စေမည့် Full Height Layout */
-    #chat-screen-view { flex: 1; display: none; flex-direction: column; height: calc(100vh - 56px); overflow: hidden; }
+    /* Chat Screen Full Layout Setup */
+    #chat-screen-view { 
+      flex: 1; 
+      display: none; 
+      flex-direction: column; 
+      height: calc(100vh - 56px); 
+      height: calc(100dvh - 56px);
+      position: relative;
+      overflow: hidden; 
+    }
     #chat-screen-view.active { display: flex; }
 
-    /* Telegram Style Chat Box */
-    .chat-box { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background: #0e1621; }
+    /* Telegram Style Chat Scroll Box */
+    .chat-box { 
+      flex: 1; 
+      padding: 12px; 
+      overflow-y: auto; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 8px; 
+      background: #0e1621; 
+      padding-bottom: 16px;
+    }
     
-    /* Telegram Pop-in Animation */
+    /* Telegram Animation */
     .message { 
       max-width: 80%; 
       padding: 8px 12px; 
@@ -77,17 +102,11 @@
     }
 
     @keyframes telegramPopIn {
-      0% {
-        opacity: 0;
-        transform: translateY(12px) scale(0.92);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+      0% { opacity: 0; transform: translateY(12px) scale(0.92); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
     }
     
-    /* Fixed Bottom Input Area */
+    /* Strictly Fixed Input Area at Bottom */
     .input-area { 
       height: 60px;
       background: #17212b; 
@@ -97,9 +116,28 @@
       align-items: center; 
       flex-shrink: 0; 
       border-top: 1px solid #232e3c;
+      position: relative;
+      z-index: 500;
     }
-    .input-area input { flex: 1; background: #0e1621; border: 1px solid #232e3c; color: white; padding: 10px 14px; border-radius: 20px; outline: none; }
-    .input-area button { background: #2b5278; color: #64b5ef; border: none; padding: 10px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+    .input-area input { 
+      flex: 1; 
+      background: #0e1621; 
+      border: 1px solid #232e3c; 
+      color: white; 
+      padding: 10px 14px; 
+      border-radius: 20px; 
+      outline: none; 
+      font-size: 0.95rem;
+    }
+    .input-area button { 
+      background: #2b5278; 
+      color: #64b5ef; 
+      border: none; 
+      padding: 10px 18px; 
+      border-radius: 20px; 
+      font-weight: bold; 
+      cursor: pointer; 
+    }
 
     /* Settings Page */
     .settings-container { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
@@ -108,8 +146,19 @@
     .setting-group input, .setting-group select { background: #0e1621; border: 1px solid #232e3c; color: white; padding: 10px; border-radius: 6px; outline: none; }
     .btn-save { background: #2b5278; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
-    /* Bottom Navigation Bar */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: #17212b; display: flex; justify-content: space-around; border-top: 1px solid #232e3c; z-index: 100; }
+    /* Fixed Bottom Navigation Bar */
+    .bottom-nav { 
+      position: fixed; 
+      bottom: 0; 
+      left: 0; 
+      right: 0; 
+      height: 56px; 
+      background: #17212b; 
+      display: flex; 
+      justify-content: space-around; 
+      border-top: 1px solid #232e3c; 
+      z-index: 1000; 
+    }
     .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #7f91a4; text-decoration: none; font-size: 0.75rem; flex: 1; cursor: pointer; gap: 2px; }
     .nav-item.active { color: #64b5ef; }
     .nav-icon { font-size: 1.2rem; }
@@ -125,7 +174,7 @@
 </head>
 <body>
   <div class="app-container">
-    <!-- Main Fixed Telegram Header -->
+    <!-- Header -->
     <header class="header">
       <div class="header-left">
         <button id="back-btn" class="btn-back" style="display: none;">←</button>
@@ -140,13 +189,13 @@
       </div>
     </header>
 
-    <!-- Tab 1: Chats (Character List) -->
-    <div id="chats-view" class="view-content active" style="padding-bottom: 60px;">
+    <!-- Tab 1: Chats View -->
+    <div id="chats-view" class="view-content active">
       <div id="character-cards-list"></div>
     </div>
 
-    <!-- Tab 2: Settings (API Key) -->
-    <div id="settings-view" class="view-content" style="padding-bottom: 60px;">
+    <!-- Tab 2: Settings View -->
+    <div id="settings-view" class="view-content">
       <div class="settings-container">
         <h3>Settings</h3>
         <div class="setting-group">
@@ -164,7 +213,7 @@
       </div>
     </div>
 
-    <!-- Chat Screen View -->
+    <!-- Chat Screen View (Box + Fixed Input) -->
     <div id="chat-screen-view">
       <div id="chat-box" class="chat-box"></div>
       <footer id="input-area" class="input-area">
@@ -173,7 +222,7 @@
       </footer>
     </div>
 
-    <!-- Telegram Bottom Navigation -->
+    <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav" id="bottom-nav">
       <div class="nav-item active" data-tab="chats-view">
         <span class="nav-icon">💬</span>
@@ -188,5 +237,4 @@
 
   <script type="module" src="app.js"></script>
 </body>
-            </html>
-            
+</html>
