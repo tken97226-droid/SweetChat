@@ -6,12 +6,23 @@
   <title>SweetChat</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-    body { background-color: #0e1621; color: #fff; height: 100vh; display: flex; flex-direction: column; }
+    body { background-color: #0e1621; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
     
-    .app-container { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+    .app-container { height: 100vh; display: flex; flex-direction: column; position: relative; overflow: hidden; }
     
-    /* Telegram Header Style */
-    .header { background: #17212b; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #232e3c; }
+    /* Telegram Header - Sticky Fixed Position */
+    .header { 
+      background: #17212b; 
+      padding: 10px 14px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      border-bottom: 1px solid #232e3c; 
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-shrink: 0;
+    }
     .header-left { display: flex; align-items: center; gap: 10px; cursor: pointer; }
     .avatar-img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; }
     .btn-back { background: transparent; border: none; color: #64b5ef; font-size: 1.4rem; cursor: pointer; padding: 4px 8px; }
@@ -34,6 +45,10 @@
     .chat-last-msg { font-size: 0.85rem; color: #7f91a4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
     .badge { background: #2b5278; color: #64b5ef; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; }
 
+    /* Chat Screen View Inner Layout */
+    #chat-screen-view { flex: 1; display: none; flex-direction: column; height: calc(100vh - 60px); overflow: hidden; padding-bottom: 0; }
+    #chat-screen-view.active { display: flex; }
+
     /* Telegram Style Chat Box */
     .chat-box { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background: #0e1621; }
     
@@ -46,7 +61,6 @@
       line-height: 1.4; 
       word-wrap: break-word;
       animation: telegramPopIn 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-      transform-origin: bottom right;
     }
     .message.user { 
       align-self: flex-end; 
@@ -74,7 +88,7 @@
       }
     }
     
-    .input-area { background: #17212b; padding: 8px 12px; display: flex; gap: 8px; align-items: center; }
+    .input-area { background: #17212b; padding: 8px 12px; display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
     .input-area input { flex: 1; background: #0e1621; border: 1px solid #232e3c; color: white; padding: 10px 14px; border-radius: 20px; outline: none; }
     .input-area button { background: #2b5278; color: #64b5ef; border: none; padding: 10px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; }
 
@@ -86,7 +100,7 @@
     .btn-save { background: #2b5278; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
     /* Bottom Navigation Bar */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: #17212b; display: flex; justify-content: space-around; border-top: 1px solid #232e3c; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: #17212b; display: flex; justify-content: space-around; border-top: 1px solid #232e3c; z-index: 100; }
     .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #7f91a4; text-decoration: none; font-size: 0.75rem; flex: 1; cursor: pointer; gap: 2px; }
     .nav-item.active { color: #64b5ef; }
     .nav-icon { font-size: 1.2rem; }
@@ -102,7 +116,7 @@
 </head>
 <body>
   <div class="app-container">
-    <!-- Main Telegram Header -->
+    <!-- Main Fixed Telegram Header -->
     <header class="header">
       <div class="header-left">
         <button id="back-btn" class="btn-back" style="display: none;">←</button>
@@ -142,7 +156,7 @@
     </div>
 
     <!-- Chat Screen View -->
-    <div id="chat-screen-view" class="view-content" style="padding-bottom: 0;">
+    <div id="chat-screen-view">
       <div id="chat-box" class="chat-box"></div>
       <footer id="input-area" class="input-area">
         <input type="text" id="chat-input" placeholder="Message..." />
@@ -165,5 +179,5 @@
 
   <script type="module" src="app.js"></script>
 </body>
-  </html>
-              
+          </html>
+          
