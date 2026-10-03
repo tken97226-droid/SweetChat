@@ -3,12 +3,18 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
     throw new Error('API Key မရှိပါ။ OpenRouter API Key ကို ထည့်သွင်းပေးပါ။');
   }
 
-  // OpenRouter Free Roleplay Model ( သို့မဟုတ် ကြိုက်နှစ်သက်ရာ Model နာမည် )
+  // Selected model or default free model
   const modelToUse = selectedModel || 'meta-llama/llama-3.1-8b-instruct:free';
 
+  // Token limit မကျော်အောင် နောက်ဆုံး message တွေကိုပဲ ယူမယ်
+  const recentMessages = messagesHistory.slice(-20);
+
   const messages = [
-    { role: 'system', content: systemPrompt },
-    ...messagesHistory.map(msg => ({
+    {
+      role: 'system',
+      content: systemPrompt
+    },
+    ...recentMessages.map(msg => ({
       role: msg.role === 'user' ? 'user' : 'assistant',
       content: msg.content
     }))
@@ -19,7 +25,7 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
-      'HTTP-Referer': window.location.origin, // GitHub Pages domain
+      'HTTP-Referer': window.location.origin,
       'X-Title': 'SweetChat'
     },
     body: JSON.stringify({
@@ -31,14 +37,23 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+    let errorMessage = `HTTP ${response.status}`;
+
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.error?.message || errorMessage;
+    } catch (e) {}
+
+    throw new Error(errorMessage);
   }
 
   const data = await response.json();
+
   const replyText = data.choices?.[0]?.message?.content;
 
-  if (!replyText) throw new Error('Response တုံ့ပြန်မှု မရှိပါ။');
+  if (!replyText) {
+    throw new Error('Response တုံ့ပြန်မှု မရှိပါ။');
+  }
 
   return replyText;
-}
+      }
