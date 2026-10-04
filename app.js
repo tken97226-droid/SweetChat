@@ -1,12 +1,14 @@
+// app.js
 import { 
   getStoredCharacters, 
   saveCharacters, 
-  getActiveCharacter, 
   setActiveCharacterId, 
   getApiKey, 
   saveApiKey, 
   getSelectedModel, 
-  saveSelectedModel 
+  saveSelectedModel,
+  getUserName,
+  saveUserName 
 } from './storage.js';
 import { sendChatMessage } from './api.js';
 import { evaluateAffection } from './affectionEngine.js';
@@ -14,7 +16,6 @@ import { evaluateAffection } from './affectionEngine.js';
 let characters = [];
 let activeCharacter = null;
 
-// DOM Elements
 const chatsView = document.getElementById('chats-view');
 const settingsView = document.getElementById('settings-view');
 const chatScreenView = document.getElementById('chat-screen-view');
@@ -32,16 +33,18 @@ const newChatBtn = document.getElementById('new-chat-btn');
 const bottomNav = document.getElementById('bottom-nav');
 
 const apiKeyInput = document.getElementById('api-key-input');
+const userNameInput = document.getElementById('user-name-input');
 const saveKeyBtn = document.getElementById('save-key-btn');
 const modelSelect = document.getElementById('model-select');
 
-// App Initialization
 document.addEventListener('DOMContentLoaded', () => {
   characters = getStoredCharacters();
 
-  // Settings Initial Load
   const savedKey = getApiKey();
   if (savedKey && apiKeyInput) apiKeyInput.value = savedKey;
+
+  const savedUserName = getUserName();
+  if (savedUserName && userNameInput) userNameInput.value = savedUserName;
 
   const savedModel = getSelectedModel();
   if (savedModel && modelSelect) modelSelect.value = savedModel;
@@ -49,12 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCharacterList();
   setupNavigation();
 
-  // Settings Handlers
   if (saveKeyBtn) {
     saveKeyBtn.addEventListener('click', () => {
       const key = apiKeyInput.value.trim();
+      const name = userNameInput ? userNameInput.value.trim() : 'User';
+
       saveApiKey(key);
-      alert('API Key သိမ်းဆည်းပြီးပါပြီ!');
+      saveUserName(name || 'User');
+      alert('API Key နှင့် Profile Name သိမ်းဆည်းပြီးပါပြီ!');
     });
   }
 
@@ -64,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Chat Event Listeners
   if (sendBtn) sendBtn.addEventListener('click', handleSendMessage);
   if (chatInput) {
     chatInput.addEventListener('keypress', (e) => {
@@ -85,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (backBtn) backBtn.addEventListener('click', showChatsTab);
 });
 
-// Render List of Characters
 function renderCharacterList() {
   if (!characterCardsList) return;
   characterCardsList.innerHTML = '';
@@ -111,7 +114,6 @@ function renderCharacterList() {
   });
 }
 
-// Bottom Navigation Setup
 function setupNavigation() {
   const navItems = document.querySelectorAll('.nav-item');
   navItems.forEach(item => {
@@ -166,7 +168,6 @@ function openChatScreen(character) {
   settingsView.classList.remove('active');
   chatScreenView.classList.add('active');
 
-  // App Bar Setup
   backBtn.style.display = 'block';
   charAvatar.style.display = 'block';
   charAvatar.src = character.avatar;
@@ -176,7 +177,6 @@ function openChatScreen(character) {
   newChatBtn.style.display = 'block';
   bottomNav.style.display = 'none';
 
-  // Chat Box Initializing
   if (!character.messages || character.messages.length === 0) {
     if (character.initialChatGreeting) {
       character.messages = [{ role: 'assistant', content: character.initialChatGreeting }];
@@ -209,7 +209,6 @@ function scrollToBottom() {
   if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Message Dispatch & Affection Handling Logic
 async function handleSendMessage() {
   const text = chatInput.value.trim();
   if (!text || !activeCharacter) return;
@@ -220,14 +219,12 @@ async function handleSendMessage() {
     return;
   }
 
-  // 1. User Message Push
   if (!activeCharacter.messages) activeCharacter.messages = [];
   activeCharacter.messages.push({ role: 'user', content: text });
   appendMessageUI('user', text);
   chatInput.value = '';
   saveCharacters(characters);
 
-  // 2. Typing Indicator Render
   const typingDiv = document.createElement('div');
   typingDiv.className = 'message model';
   typingDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
@@ -237,7 +234,6 @@ async function handleSendMessage() {
   try {
     const selectedModel = getSelectedModel();
 
-    // 3. API Request (api.js - sendChatMessage)
     const rawReply = await sendChatMessage(
       apiKey,
       selectedModel,
@@ -245,19 +241,15 @@ async function handleSendMessage() {
       activeCharacter.messages
     );
 
-    // Typing Animation Remove
     if (chatBox.contains(typingDiv)) {
       chatBox.removeChild(typingDiv);
     }
 
-    // 4. Affection Sentiment Analysis (affectionEngine.js - evaluateAffection)
     const { cleanText, affectionDelta } = evaluateAffection(rawReply, text);
 
-    // Affection Update
     activeCharacter.affection = (activeCharacter.affection || 0) + affectionDelta;
     headerStatus.textContent = `Affection: ${activeCharacter.affection}`;
 
-    // 5. Assistant Response Push
     activeCharacter.messages.push({ role: 'assistant', content: cleanText });
     appendMessageUI('model', cleanText);
 
@@ -268,4 +260,5 @@ async function handleSendMessage() {
     }
     appendMessageUI('model', ` Error: ${error.message}`);
   }
-  }
+}
+  
