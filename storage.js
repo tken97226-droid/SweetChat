@@ -1,79 +1,50 @@
-import { DEFAULT_CHARACTERS } from './defaultCharacters.js';
-
-const STORAGE_KEYS = {
-  CHARACTERS: 'sweetchat_characters_v1',
-  ACTIVE_CHARACTER_ID: 'sweetchat_active_char_id_v1',
-  API_KEYS: 'sweetchat_api_keys_v1',
-  SELECTED_MODEL: 'sweetchat_selected_model_v1',
-  USER_NAME: 'sweetchat_user_name_v1'
-};
+// storage.js
+import { DEFAULT_CHARACTERS } from './config.js';
 
 export function getStoredCharacters() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.CHARACTERS);
-    if (raw) {
-      let parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        let updated = false;
-
-        // DEFAULT_CHARACTERS ထဲရှိ Character အသစ်များ (Rem, Makima) ပါမပါ စစ်ပြီး အလိုအလျောက် ပေါင်းထည့်ပေးခြင်း
-        DEFAULT_CHARACTERS.forEach(defaultChar => {
-          const exists = parsed.some(c => c.id === defaultChar.id);
-          if (!exists) {
-            parsed.push(defaultChar);
-            updated = true;
-          }
-        });
-
-        if (updated) {
-          saveCharacters(parsed);
-        }
-        return parsed;
-      }
+  const data = localStorage.getItem('sweet_chat_characters');
+  if (data) {
+    try {
+      return JSON.parse(data);
+    } catch (e) {
+      console.error('Error parsing stored characters', e);
     }
-  } catch (e) {
-    console.error('Failed to load stored characters:', e);
   }
-
-  saveCharacters(DEFAULT_CHARACTERS);
   return DEFAULT_CHARACTERS;
 }
 
 export function saveCharacters(characters) {
-  try {
-    localStorage.setItem(STORAGE_KEYS.CHARACTERS, JSON.stringify(characters));
-  } catch (e) {
-    console.error('Failed to save characters:', e);
-  }
+  localStorage.setItem('sweet_chat_characters', JSON.stringify(characters));
 }
 
 export function getActiveCharacterId() {
-  return localStorage.getItem(STORAGE_KEYS.ACTIVE_CHARACTER_ID) || 'char-suzuki';
+  return localStorage.getItem('sweet_chat_active_char_id');
 }
 
 export function setActiveCharacterId(id) {
-  localStorage.setItem(STORAGE_KEYS.ACTIVE_CHARACTER_ID, id);
-}
-
-export function getActiveCharacter() {
-  const chars = getStoredCharacters();
-  const activeId = getActiveCharacterId();
-  return chars.find(c => c.id === activeId) || chars[0] || DEFAULT_CHARACTERS[0];
+  localStorage.setItem('sweet_chat_active_char_id', id);
 }
 
 export function getApiKey() {
-  return localStorage.getItem(STORAGE_KEYS.API_KEYS) || '';
+  return localStorage.getItem('openrouter_api_key') || '';
 }
 
 export function saveApiKey(key) {
-  localStorage.setItem(STORAGE_KEYS.API_KEYS, key.trim());
+  localStorage.setItem('openrouter_api_key', key);
 }
 
 export function getSelectedModel() {
-  return localStorage.getItem(STORAGE_KEYS.SELECTED_MODEL) || 'meta-llama/llama-3.1-8b-instruct:free';
+  return localStorage.getItem('selected_model') || 'google/gemini-2.0-flash-lite-preview-02-05:free';
 }
 
 export function saveSelectedModel(model) {
-  localStorage.setItem(STORAGE_KEYS.SELECTED_MODEL, model);
+  localStorage.setItem('selected_model', model);
 }
-  
+
+export function getUserName() {
+  return localStorage.getItem('user_profile_name') || 'User';
+}
+
+export function saveUserName(name) {
+  localStorage.setItem('user_profile_name', name);
+}
