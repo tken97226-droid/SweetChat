@@ -12,10 +12,11 @@ export function getStoredCharacters() {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.CHARACTERS);
     if (raw) {
-      const parsed = JSON.parse(raw);
+      let parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Character အသစ်များ (Rem, Makima) ပါမပါ စစ်ဆေးပြီး Auto Merge ပြုလုပ်ခြင်း
         let updated = false;
+
+        // DEFAULT_CHARACTERS ထဲရှိ Character အသစ်များ (Rem, Makima) ပါမပါ စစ်ပြီး အလိုအလျောက် ပေါင်းထည့်ပေးခြင်း
         DEFAULT_CHARACTERS.forEach(defaultChar => {
           const exists = parsed.some(c => c.id === defaultChar.id);
           if (!exists) {
@@ -33,6 +34,7 @@ export function getStoredCharacters() {
   } catch (e) {
     console.error('Failed to load stored characters:', e);
   }
+
   saveCharacters(DEFAULT_CHARACTERS);
   return DEFAULT_CHARACTERS;
 }
@@ -68,10 +70,9 @@ export function saveApiKey(key) {
 }
 
 export function getSelectedModel() {
-  return localStorage.getItem(STORAGE_KEYS.SELECTED_MODEL) || 'gemini-3.1-flash-lite';
+  return localStorage.getItem(STORAGE_KEYS.SELECTED_MODEL) || 'meta-llama/llama-3.1-8b-instruct:free';
 }
 
 export function saveSelectedModel(model) {
   localStorage.setItem(STORAGE_KEYS.SELECTED_MODEL, model);
-}
-  
+              }
