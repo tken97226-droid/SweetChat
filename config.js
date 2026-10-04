@@ -1,7 +1,7 @@
+// OpenRouter ပေါ်မှ အခမဲ့ သုံးနိုင်သော မော်ဒယ်များ စာရင်း
 export const FREE_MODELS = [
-  'gemini-3.1-flash-lite',
-  'gemini-3.5-flash-lite',
-  'gemini-3.6-flash',
-  'gemini-3.7-flash',
-  'gemini-3.8-flash'
+  'meta-llama/llama-3.1-8b-instruct:free',
+  'google/gemini-2.0-flash-lite-preview-02-05:free',
+  'google/gemini-2.0-flash-exp:free',
+  'qwen/qwen-2.5-coder-32b-instruct:free'
 ];
