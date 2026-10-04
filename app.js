@@ -1,216 +1,271 @@
-import { getStoredCharacters, saveCharacters, getActiveCharacter, setActiveCharacterId, getApiKey, saveApiKey, getSelectedModel, saveSelectedModel } from './storage.js';
+import { 
+  getStoredCharacters, 
+  saveCharacters, 
+  getActiveCharacter, 
+  setActiveCharacterId, 
+  getApiKey, 
+  saveApiKey, 
+  getSelectedModel, 
+  saveSelectedModel 
+} from './storage.js';
 import { sendChatMessage } from './api.js';
 import { evaluateAffection } from './affectionEngine.js';
 
-let currentChar = null;
+let characters = [];
+let activeCharacter = null;
 
+// DOM Elements
+const chatsView = document.getElementById('chats-view');
+const settingsView = document.getElementById('settings-view');
+const chatScreenView = document.getElementById('chat-screen-view');
+
+const characterCardsList = document.getElementById('character-cards-list');
+const chatBox = document.getElementById('chat-box');
+const chatInput = document.getElementById('chat-input');
+const sendBtn = document.getElementById('send-btn');
+
+const backBtn = document.getElementById('back-btn');
+const charAvatar = document.getElementById('char-avatar');
+const headerTitle = document.getElementById('header-title');
+const headerStatus = document.getElementById('header-status');
+const newChatBtn = document.getElementById('new-chat-btn');
+const bottomNav = document.getElementById('bottom-nav');
+
+const apiKeyInput = document.getElementById('api-key-input');
+const saveKeyBtn = document.getElementById('save-key-btn');
+const modelSelect = document.getElementById('model-select');
+
+// App Initialization
 document.addEventListener('DOMContentLoaded', () => {
-  const chatBox = document.getElementById('chat-box');
-  const chatInput = document.getElementById('chat-input');
-  const sendBtn = document.getElementById('send-btn');
-  const apiKeyInput = document.getElementById('api-key-input');
-  const saveKeyBtn = document.getElementById('save-key-btn');
-  const modelSelect = document.getElementById('model-select');
-  
-  const headerTitle = document.getElementById('header-title');
-  const headerStatus = document.getElementById('header-status');
-  const charAvatar = document.getElementById('char-avatar');
-  const backBtn = document.getElementById('back-btn');
-  const newChatBtn = document.getElementById('new-chat-btn');
-  const bottomNav = document.getElementById('bottom-nav');
+  characters = getStoredCharacters();
 
-  const chatsView = document.getElementById('chats-view');
-  const settingsView = document.getElementById('settings-view');
-  const chatScreenView = document.getElementById('chat-screen-view');
-  const cardsList = document.getElementById('character-cards-list');
+  // Settings Initial Load
+  const savedKey = getApiKey();
+  if (savedKey && apiKeyInput) apiKeyInput.value = savedKey;
 
-  apiKeyInput.value = getApiKey();
-  modelSelect.value = getSelectedModel();
+  const savedModel = getSelectedModel();
+  if (savedModel && modelSelect) modelSelect.value = savedModel;
 
-  document.querySelectorAll('.nav-item').forEach(item => {
+  renderCharacterList();
+  setupNavigation();
+
+  // Settings Handlers
+  if (saveKeyBtn) {
+    saveKeyBtn.addEventListener('click', () => {
+      const key = apiKeyInput.value.trim();
+      saveApiKey(key);
+      alert('API Key သိမ်းဆည်းပြီးပါပြီ!');
+    });
+  }
+
+  if (modelSelect) {
+    modelSelect.addEventListener('change', (e) => {
+      saveSelectedModel(e.target.value);
+    });
+  }
+
+  // Chat Event Listeners
+  if (sendBtn) sendBtn.addEventListener('click', handleSendMessage);
+  if (chatInput) {
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleSendMessage();
+    });
+  }
+
+  if (newChatBtn) {
+    newChatBtn.addEventListener('click', () => {
+      if (activeCharacter && confirm(`${activeCharacter.name} နှင့် စကားပြောထားသည်များကို ဖျက်ပြီး စကားစတင်လိုပါသလား?`)) {
+        activeCharacter.messages = [];
+        saveCharacters(characters);
+        renderMessages();
+      }
+    });
+  }
+
+  if (backBtn) backBtn.addEventListener('click', showChatsTab);
+});
+
+// Render List of Characters
+function renderCharacterList() {
+  if (!characterCardsList) return;
+  characterCardsList.innerHTML = '';
+
+  characters.forEach(char => {
+    const lastMsgObj = char.messages && char.messages.length > 0 ? char.messages[char.messages.length - 1] : null;
+    const lastMsg = lastMsgObj ? lastMsgObj.content : (char.initialChatGreeting || "နှုတ်ဆက်လိုက်ပါ...");
+
+    const card = document.createElement('div');
+    card.className = 'chat-list-item';
+    card.innerHTML = `
+      <img src="${char.avatar}" alt="${char.name}" onerror="this.src='https://via.placeholder.com/50'">
+      <div class="chat-info">
+        <div class="chat-info-top">
+          <h3>${char.name}</h3>
+          <span class="badge">Affection: ${char.affection || 0}</span>
+        </div>
+        <div class="chat-last-msg">${lastMsg}</div>
+      </div>
+    `;
+    card.addEventListener('click', () => openChatScreen(char));
+    characterCardsList.appendChild(card);
+  });
+}
+
+// Bottom Navigation Setup
+function setupNavigation() {
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(item => {
     item.addEventListener('click', () => {
-      document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-      document.querySelectorAll('.view-content').forEach(view => view.classList.remove('active'));
-      
-      item.classList.add('active');
       const targetTab = item.getAttribute('data-tab');
-      document.getElementById(targetTab).classList.add('active');
+      navItems.forEach(nav => nav.classList.remove('active'));
+      item.classList.add('active');
 
       if (targetTab === 'chats-view') {
-        headerTitle.innerText = 'SweetChat';
-        headerStatus.style.display = 'none';
-        backBtn.style.display = 'none';
-        charAvatar.style.display = 'none';
-        newChatBtn.style.display = 'none';
-        renderHomeCards();
+        showChatsTab();
       } else if (targetTab === 'settings-view') {
-        headerTitle.innerText = 'Settings';
-        headerStatus.style.display = 'none';
-        backBtn.style.display = 'none';
-        charAvatar.style.display = 'none';
-        newChatBtn.style.display = 'none';
+        showSettingsTab();
       }
     });
   });
+}
 
-  function renderHomeCards() {
-    const chars = getStoredCharacters();
-    cardsList.innerHTML = '';
+function showChatsTab() {
+  chatsView.classList.add('active');
+  settingsView.classList.remove('active');
+  chatScreenView.classList.remove('active');
 
-    chars.forEach(c => {
-      const lastMsg = (c.messages && c.messages.length > 0) 
-        ? c.messages[c.messages.length - 1].content 
-        : c.initialChatGreeting;
+  backBtn.style.display = 'none';
+  charAvatar.style.display = 'none';
+  headerTitle.textContent = 'SweetChat';
+  headerStatus.style.display = 'none';
+  newChatBtn.style.display = 'none';
+  bottomNav.style.display = 'flex';
 
-      const item = document.createElement('div');
-      item.className = 'chat-list-item';
-      item.innerHTML = `
-        <img src="${c.avatar || 'Susuki.jpeg'}" alt="${c.name}">
-        <div class="chat-info">
-          <div class="chat-info-top">
-            <h3>${c.name}</h3>
-            <span class="badge">Affection: ${c.affection || 0}</span>
-          </div>
-          <div class="chat-last-msg">${lastMsg}</div>
-        </div>
-      `;
-      item.addEventListener('click', () => openChatSession(c.id, false));
-      cardsList.appendChild(item);
-    });
-  }
+  activeCharacter = null;
+  renderCharacterList();
+}
 
-  function openChatSession(charId, isNewChat = false) {
-    setActiveCharacterId(charId);
-    currentChar = getActiveCharacter();
+function showSettingsTab() {
+  chatsView.classList.remove('active');
+  settingsView.classList.add('active');
+  chatScreenView.classList.remove('active');
 
-    if (!currentChar.messages) currentChar.messages = [];
+  backBtn.style.display = 'none';
+  charAvatar.style.display = 'none';
+  headerTitle.textContent = 'Settings';
+  headerStatus.style.display = 'none';
+  newChatBtn.style.display = 'none';
+  bottomNav.style.display = 'flex';
+}
 
-    if (isNewChat) {
-      currentChar.messages = [];
-      saveCurrentCharState();
+function openChatScreen(character) {
+  activeCharacter = character;
+  setActiveCharacterId(character.id);
+
+  chatsView.classList.remove('active');
+  settingsView.classList.remove('active');
+  chatScreenView.classList.add('active');
+
+  // App Bar Setup
+  backBtn.style.display = 'block';
+  charAvatar.style.display = 'block';
+  charAvatar.src = character.avatar;
+  headerTitle.textContent = character.name;
+  headerStatus.style.display = 'block';
+  headerStatus.textContent = `Affection: ${character.affection || 0}`;
+  newChatBtn.style.display = 'block';
+  bottomNav.style.display = 'none';
+
+  // Chat Box Initializing
+  if (!character.messages || character.messages.length === 0) {
+    if (character.initialChatGreeting) {
+      character.messages = [{ role: 'assistant', content: character.initialChatGreeting }];
+      saveCharacters(characters);
     }
-
-    document.querySelectorAll('.view-content').forEach(view => view.classList.remove('active'));
-    chatScreenView.classList.add('active');
-
-    headerTitle.innerText = currentChar.name;
-    headerStatus.style.display = 'block';
-    headerStatus.innerText = 'online';
-    charAvatar.src = currentChar.avatar || 'Susuki.jpeg';
-    charAvatar.style.display = 'block';
-    backBtn.style.display = 'block';
-    newChatBtn.style.display = 'block';
-    bottomNav.style.display = 'none';
-
-    updateUI();
   }
 
-  backBtn.addEventListener('click', () => {
-    chatScreenView.classList.remove('active');
-    chatsView.classList.add('active');
-    
-    headerTitle.innerText = 'SweetChat';
-    headerStatus.style.display = 'none';
-    backBtn.style.display = 'none';
-    charAvatar.style.display = 'none';
-    newChatBtn.style.display = 'none';
-    bottomNav.style.display = 'flex';
-    
-    renderHomeCards();
+  renderMessages();
+}
+
+function renderMessages() {
+  if (!chatBox || !activeCharacter) return;
+  chatBox.innerHTML = '';
+  
+  (activeCharacter.messages || []).forEach(msg => {
+    appendMessageUI(msg.role, msg.content);
   });
+  scrollToBottom();
+}
 
-  newChatBtn.addEventListener('click', () => {
-    if (confirm('စကားပြောထားတာတွေကို ဖျက်ပြီး New Chat ပြန်စမလားဟင်?')) {
-      if (currentChar) openChatSession(currentChar.id, true);
-    }
-  });
+function appendMessageUI(role, text) {
+  const msgDiv = document.createElement('div');
+  msgDiv.className = `message ${role === 'user' ? 'user' : 'model'}`;
+  msgDiv.textContent = text;
+  chatBox.appendChild(msgDiv);
+  scrollToBottom();
+}
 
-  saveKeyBtn.addEventListener('click', () => {
-    saveApiKey(apiKeyInput.value);
-    alert('API Key သိမ်းဆည်းပြီးပါပြီ!');
-  });
+function scrollToBottom() {
+  if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+}
 
-  modelSelect.addEventListener('change', (e) => {
-    saveSelectedModel(e.target.value);
-  });
+// Message Dispatch & Affection Handling Logic
+async function handleSendMessage() {
+  const text = chatInput.value.trim();
+  if (!text || !activeCharacter) return;
 
-  function updateUI() {
-    chatBox.innerHTML = '';
-
-    if (!currentChar.messages || currentChar.messages.length === 0) {
-      appendMessage('model', currentChar.initialChatGreeting);
-    } else {
-      currentChar.messages.forEach(msg => appendMessage(msg.role, msg.content));
-    }
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    alert('ကျေးဇူးပြု၍ Settings ထဲတွင် OpenRouter API Key ကို အရင်ထည့်သွင်းပေးပါ!');
+    return;
   }
 
-  function appendMessage(role, text) {
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `message ${role}`;
-    msgDiv.innerText = text;
-    chatBox.appendChild(msgDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
-    return msgDiv;
-  }
+  // 1. User Message Push
+  if (!activeCharacter.messages) activeCharacter.messages = [];
+  activeCharacter.messages.push({ role: 'user', content: text });
+  appendMessageUI('user', text);
+  chatInput.value = '';
+  saveCharacters(characters);
 
-  async function handleSend() {
-    const text = chatInput.value.trim();
-    if (!text) return;
+  // 2. Typing Indicator Render
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'message model';
+  typingDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+  chatBox.appendChild(typingDiv);
+  scrollToBottom();
 
-    const key = getApiKey();
-    if (!key) {
-      alert('ကျေးဇူးပြု၍ Settings ထဲသို့သွားပြီး API Key အရင်ထည့်ပေးပါ!');
-      return;
+  try {
+    const selectedModel = getSelectedModel();
+
+    // 3. API Request (api.js - sendChatMessage)
+    const rawReply = await sendChatMessage(
+      apiKey,
+      selectedModel,
+      activeCharacter.systemPrompt,
+      activeCharacter.messages
+    );
+
+    // Typing Animation Remove
+    if (chatBox.contains(typingDiv)) {
+      chatBox.removeChild(typingDiv);
     }
 
-    appendMessage('user', text);
-    chatInput.value = '';
+    // 4. Affection Sentiment Analysis (affectionEngine.js - evaluateAffection)
+    const { cleanText, affectionDelta } = evaluateAffection(rawReply, text);
 
-    if (!currentChar.messages) currentChar.messages = [];
-    currentChar.messages.push({ role: 'user', content: text });
+    // Affection Update
+    activeCharacter.affection = (activeCharacter.affection || 0) + affectionDelta;
+    headerStatus.textContent = `Affection: ${activeCharacter.affection}`;
 
-    saveCurrentCharState();
+    // 5. Assistant Response Push
+    activeCharacter.messages.push({ role: 'assistant', content: cleanText });
+    appendMessageUI('model', cleanText);
 
-    const loadingElem = appendMessage('model', '');
-    loadingElem.innerHTML = `
-      <div class="typing-indicator">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    `;
-
-    try {
-      const selectedModel = getSelectedModel();
-      const rawReply = await sendChatMessage(key, selectedModel, currentChar.systemPrompt, currentChar.messages);
-      const { cleanText, affectionDelta } = evaluateAffection(rawReply, text);
-
-      loadingElem.innerText = cleanText;
-      currentChar.messages.push({ role: 'model', content: cleanText });
-
-      currentChar.affection = (currentChar.affection || 0) + affectionDelta;
-      saveCurrentCharState();
-
-    } catch (err) {
-      loadingElem.innerText = `Error: ${err.message}`;
-      loadingElem.classList.add('error');
+    saveCharacters(characters);
+  } catch (error) {
+    if (chatBox.contains(typingDiv)) {
+      chatBox.removeChild(typingDiv);
     }
+    appendMessageUI('model', ` Error: ${error.message}`);
   }
-
-  function saveCurrentCharState() {
-    const allChars = getStoredCharacters();
-    const index = allChars.findIndex(c => c.id === currentChar.id);
-    if (index !== -1) {
-      allChars[index] = currentChar;
-      saveCharacters(allChars);
-    }
   }
-
-  sendBtn.addEventListener('click', handleSend);
-  chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleSend();
-  });
-
-  renderHomeCards();
-});
-      
