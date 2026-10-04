@@ -1,57 +1,25 @@
-const POSITIVE_TERMS_EN = [
-  'love', 'adore', 'miss you', 'cute', 'sweet', 'beautiful', 'handsome', 'kind', 'thank', 'thanks', 'appreciate', 'hug', 'kiss', 'warm', 'caring', 'like you', 'best', 'wonderful', 'amazing'
-];
-
-const POSITIVE_TERMS_MY = [
-  'ချစ်', 'သတိရ', 'ကြိုက်', 'ကျေးဇူး', 'လှတယ်', 'ချောတယ်', 'နမ်း', 'ဖက်', 'အနားမှာ', 'ဂရုစိုက်', 'စိတ်ချမ်းသာ', 'အားပေး', 'အဆင်ပြေ', 'ကောင်းတယ်', 'ပျော်တယ်', 'ချစ်စရာ', 'ချစ်တယ်'
-];
-
-const NEGATIVE_TERMS_EN = [
-  'hate', 'shut up', 'ugly', 'stupid', 'idiot', 'dumb', 'annoying', 'boring', 'get lost', 'leave me', 'useless', 'trash'
-];
-
-const NEGATIVE_TERMS_MY = [
-  'မုန်း', 'ရုပ်ဆိုး', 'ပါးစပ်ပိတ်', 'အရူး', 'ငတုံး', 'စိတ်ပျက်', 'ထွက်သွား', 'အသုံးမကျ', 'ရွံ', 'တောက်', 'နားငြီး', 'မုန်းတယ်'
-];
-
-export function evaluateAffection(rawReplyText = '', userMessageText = '') {
+// affectionEngine.js
+export function evaluateAffection(replyText, userMessage) {
   let affectionDelta = 0;
-  let cleanText = rawReplyText;
+  let cleanText = replyText;
 
-  const tagMatch = rawReplyText.match(/\[AFFECTION:\s*([+-]?\d+)\]/i) ||
-                   rawReplyText.match(/<!--\s*affection:\s*([+-]?\d+)\s*-->/i);
+  // AI response ထဲတွင် [AFFECTION: +2] သို့မဟုတ် [AFFECTION: -1] ပါမပါ စစ်ဆေးခြင်း
+  const match = replyText.match(/\[AFFECTION:\s*([+-]?\d+)\]/i);
+  if (match) {
+    affectionDelta = parseInt(match[1], 10) || 0;
+    cleanText = replyText.replace(/\[AFFECTION:\s*[+-]?\d+\]/gi, '').trim();
+  } else {
+    // စာသား အမူအရာအပေါ် မူတည်၍ ရမှတ် တွက်ချက်ခြင်း
+    const lowerUserMsg = userMessage.toLowerCase();
+    const sweetWords = ['ချစ်တယ်', 'ကြိုက်တယ်', 'လှတယ်', 'သဘောကျတယ်', 'မိုက်တယ်', 'cute', 'love'];
+    const rudeWords = ['မုန်းတယ်', 'နုံတယ်', 'ရုပ်ဆိုး', 'ဆိုးတယ်', 'hate', 'stupid'];
 
-  if (tagMatch) {
-    const parsed = parseInt(tagMatch[1], 10);
-    if (!isNaN(parsed)) {
-      affectionDelta = parsed;
-    }
-    cleanText = rawReplyText
-      .replace(/\[AFFECTION:\s*[+-]?\d+\]/gi, '')
-      .replace(/<!--\s*affection:\s*[+-]?\d+\s*-->/gi, '')
-      .trim();
-  }
-
-  if (affectionDelta === 0 && userMessageText && userMessageText.trim().length > 0) {
-    const lowerUser = userMessageText.toLowerCase().trim();
-    let posScore = 0;
-    let negScore = 0;
-
-    for (const term of POSITIVE_TERMS_EN) if (lowerUser.includes(term)) posScore += 1;
-    for (const term of POSITIVE_TERMS_MY) if (lowerUser.includes(term)) posScore += 1;
-    for (const term of NEGATIVE_TERMS_EN) if (lowerUser.includes(term)) negScore += 1;
-    for (const term of NEGATIVE_TERMS_MY) if (lowerUser.includes(term)) negScore += 1;
-
-    if (negScore > 0 && negScore >= posScore) {
-      affectionDelta = -Math.min(3, negScore);
-    } else if (posScore > 0) {
-      affectionDelta = Math.min(3, posScore);
-    } else {
-      affectionDelta = 1;
+    if (sweetWords.some(w => lowerUserMsg.includes(w))) {
+      affectionDelta = 2;
+    } else if (rudeWords.some(w => lowerUserMsg.includes(w))) {
+      affectionDelta = -2;
     }
   }
 
-  affectionDelta = Math.max(-5, Math.min(5, affectionDelta));
   return { cleanText, affectionDelta };
-  }
-    
+}
