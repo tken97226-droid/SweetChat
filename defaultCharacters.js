@@ -1,4 +1,4 @@
-export const DEFAULT_CHARACTERS = [
+Export const DEFAULT_CHARACTERS = [
   {
     id: 'char-suzuki',
     name: 'Suzuki',
