@@ -14,6 +14,19 @@ export function getStoredCharacters() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
+        // Character အသစ်များ (Rem, Makima) ပါမပါ စစ်ဆေးပြီး Auto Merge ပြုလုပ်ခြင်း
+        let updated = false;
+        DEFAULT_CHARACTERS.forEach(defaultChar => {
+          const exists = parsed.some(c => c.id === defaultChar.id);
+          if (!exists) {
+            parsed.push(defaultChar);
+            updated = true;
+          }
+        });
+
+        if (updated) {
+          saveCharacters(parsed);
+        }
         return parsed;
       }
     }
