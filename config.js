@@ -1,7 +1,8 @@
-// OpenRouter ပေါ်မှ အခမဲ့ သုံးနိုင်သော မော်ဒယ်များ စာရင်း
+// Pollinations AI ပေါ်မှ သုံးနိုင်သော မော်ဒယ်များ စာရင်း
 export const FREE_MODELS = [
-  'meta-llama/llama-3.1-8b-instruct:free',
-  'google/gemini-2.0-flash-lite-preview-02-05:free',
-  'google/gemini-2.0-flash-exp:free',
-  'qwen/qwen-2.5-coder-32b-instruct:free'
+  'mistral',
+  'evil',
+  'openai',
+  'llama',
+  'qwen-coder'
 ];
