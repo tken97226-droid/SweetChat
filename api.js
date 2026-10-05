@@ -4,7 +4,6 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
   // Token limit မကျော်အောင် နောက်ဆုံး message 15 ခုကိုပဲ ယူမည်
   const recentMessages = messagesHistory.slice(-15);
   
-  // Prompt များအားလုံးကို Pollinations AI နားလည်သော Standard Format သို့ ပေါင်းစည်းမည်
   const messages = [
     { role: 'system', content: systemPrompt },
     ...recentMessages.map(msg => ({
@@ -13,20 +12,20 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
     }))
   ];
 
-  // Selected Model အလိုက် Free Model များသို့ ညွှန်းပေးမည်
-  let targetModel = 'mistral';
+  // Pollinations API အသစ်တွင် အခမဲ့ အလုပ်လုပ်သော Model Name သို့ Mapping လုပ်ခြင်း
+  let targetModel = 'openai'; // Pollinations Free API တွင် OpenAI သို့မဟုတ် Qwen သည် Stable အဖြစ်ဆုံးဖြစ်သည်
+  
   if (selectedModel) {
     const lower = selectedModel.toLowerCase();
     if (lower.includes('llama')) targetModel = 'llama';
     else if (lower.includes('evil') || lower.includes('uncensored')) targetModel = 'evil';
     else if (lower.includes('qwen')) targetModel = 'qwen-coder';
-    else if (lower.includes('openai') || lower.includes('gpt')) targetModel = 'openai';
-    else targetModel = 'mistral';
+    else targetModel = 'openai';
   }
 
   try {
-    // 402 Payment Required မတက်အောင် Pollinations OpenAI-compatible Chat Completions အခမဲ့ Endpoint သို့ ပို့မည်
-    const response = await fetch('https://text.pollinations.ai/', {
+    // Pollinations OpenAI Compatibility Endpoint သို့ Send လုပ်ခြင်း
+    const response = await fetch('https://text.pollinations.ai/openai', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -39,14 +38,18 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errText.slice(0, 100)}`);
+      let errText = `HTTP ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errText = errorData.error?.message || errorData.message || errText;
+      } catch (e) {}
+      throw new Error(`[Pollinations AI Error] ${errText}`);
     }
 
-    // Response ကို Text အဖြစ် တိုက်ရိုက်ယူခြင်း
-    const replyText = await response.text();
+    const data = await response.json();
+    const replyText = data.choices?.[0]?.message?.content;
 
-    if (replyText && replyText.trim().length > 0) {
+    if (replyText) {
       return replyText.trim();
     } else {
       throw new Error('AI ထံမှ တုံ့ပြန်မှု မရရှိပါ။');
@@ -56,4 +59,4 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
     console.error('API Call Error:', err);
     throw new Error(err.message || 'Model တုံ့ပြန်မှု မရှိပါ။ ခဏနေမှ ပြန်စမ်းကြည့်ပါ။');
   }
-                                 }
+  }
