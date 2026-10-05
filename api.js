@@ -1,8 +1,10 @@
 import { FREE_MODELS } from './config.js';
 
 export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messagesHistory) {
-  // Token limit မကျော်အောင် နောက်ဆုံး message 20 ကိုပဲ ယူမည်
-  const recentMessages = messagesHistory.slice(-20);
+  // Token limit မကျော်အောင် နောက်ဆုံး message 15 ခုကိုပဲ ယူမည်
+  const recentMessages = messagesHistory.slice(-15);
+  
+  // Prompt များအားလုံးကို Pollinations AI နားလည်သော Standard Format သို့ ပေါင်းစည်းမည်
   const messages = [
     { role: 'system', content: systemPrompt },
     ...recentMessages.map(msg => ({
@@ -11,54 +13,41 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
     }))
   ];
 
-  // OpenRouter Model Name များကို Pollinations အခမဲ့ Model မျိုးသို့ အလိုအလျောက် ပြောင်းပေးခြင်း
-  let targetModel = 'mistral'; // Default မော်ဒယ်
-  
+  // Selected Model အလိုက် Free Model များသို့ ညွှန်းပေးမည်
+  let targetModel = 'mistral';
   if (selectedModel) {
-    const lowerModel = selectedModel.toLowerCase();
-    if (lowerModel.includes('llama')) {
-      targetModel = 'llama';
-    } else if (lowerModel.includes('evil') || lowerModel.includes('uncensored')) {
-      targetModel = 'evil';
-    } else if (lowerModel.includes('gpt') || lowerModel.includes('openai')) {
-      targetModel = 'openai';
-    } else if (lowerModel.includes('qwen')) {
-      targetModel = 'qwen-coder';
-    } else {
-      targetModel = 'mistral';
-    }
+    const lower = selectedModel.toLowerCase();
+    if (lower.includes('llama')) targetModel = 'llama';
+    else if (lower.includes('evil') || lower.includes('uncensored')) targetModel = 'evil';
+    else if (lower.includes('qwen')) targetModel = 'qwen-coder';
+    else if (lower.includes('openai') || lower.includes('gpt')) targetModel = 'openai';
+    else targetModel = 'mistral';
   }
 
   try {
-    // API Key အဟောင်း ပို့မိပါက Paid Pollen Error တက်နိုင်သဖြင့် Header တွင် Authorization မထည့်ဘဲ ရိုးရိုးခေါ်ယူမည်
-    const headers = {
-      'Content-Type': 'application/json'
-    };
-
-    const response = await fetch('https://text.pollinations.ai/openai', {
+    // 402 Payment Required မတက်အောင် Pollinations OpenAI-compatible Chat Completions အခမဲ့ Endpoint သို့ ပို့မည်
+    const response = await fetch('https://text.pollinations.ai/', {
       method: 'POST',
-      headers: headers,
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
-        model: targetModel,
         messages: messages,
-        temperature: 0.85
+        model: targetModel,
+        seed: Math.floor(Math.random() * 1000000)
       })
     });
 
     if (!response.ok) {
-      let errText = `HTTP ${response.status}`;
-      try {
-        const errorData = await response.json();
-        errText = errorData.error?.message || errorData.message || errText;
-      } catch (e) {}
-      throw new Error(`[Pollinations AI Error] ${errText}`);
+      const errText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errText.slice(0, 100)}`);
     }
 
-    const data = await response.json();
-    const replyText = data.choices?.[0]?.message?.content;
+    // Response ကို Text အဖြစ် တိုက်ရိုက်ယူခြင်း
+    const replyText = await response.text();
 
-    if (replyText) {
-      return replyText;
+    if (replyText && replyText.trim().length > 0) {
+      return replyText.trim();
     } else {
       throw new Error('AI ထံမှ တုံ့ပြန်မှု မရရှိပါ။');
     }
@@ -67,4 +56,4 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
     console.error('API Call Error:', err);
     throw new Error(err.message || 'Model တုံ့ပြန်မှု မရှိပါ။ ခဏနေမှ ပြန်စမ်းကြည့်ပါ။');
   }
-        }
+                                 }
