@@ -364,4 +364,4 @@ USER PROFILE INFORMATION:
     appendMessageUI('model', ` Error: ${error.message}`);
   }
   }
-  
+    
