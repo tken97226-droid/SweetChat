@@ -12,7 +12,7 @@
     <header class="header">
       <div class="header-left">
         <button id="back-btn" class="btn-back" style="display: none;">←</button>
-        <img id="char-avatar" src="Susuki.jpeg" class="avatar-img" style="display: none;" />
+        <img id="char-avatar" src="" class="avatar-img" style="display: none;" />
         <div class="header-user-info">
           <h3 id="header-title">SweetChat</h3>
           <span id="header-status" style="display: none;">last seen recently</span>
@@ -25,6 +25,12 @@
 
     <!-- Tab 1: Chats View -->
     <div id="chats-view" class="view-content active">
+      <!-- Category Filter Tabs -->
+      <div class="category-tabs">
+        <button class="cat-btn active" data-category="all">All</button>
+        <button class="cat-btn" data-category="female">Female</button>
+        <button class="cat-btn" data-category="male">Male</button>
+      </div>
       <div id="character-cards-list"></div>
     </div>
 
@@ -34,7 +40,7 @@
         <h3>My Profile</h3>
         <div class="setting-group">
           <div class="profile-avatar-wrapper">
-            <img id="user-avatar-preview" src="./default-avatar.png" class="profile-avatar-preview" />
+            <img id="user-avatar-preview" src="https://via.placeholder.com/90" class="profile-avatar-preview" />
             <label class="btn-upload-photo">
               📷 Change Photo
               <input type="file" id="user-avatar-input" accept="image/*" style="display: none;" />
@@ -73,14 +79,14 @@
         <div class="setting-group">
           <label for="model-select">Select AI Model</label>
           <select id="model-select">
-            <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite</option>
+            <option value="google/gemini-2.5-flash">Gemini 2.5 Flash</option>
             <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B (Free)</option>
           </select>
         </div>
       </div>
     </div>
 
-    <!-- Chat Screen View (Box + Fixed Input) -->
+    <!-- Chat Screen View -->
     <div id="chat-screen-view">
       <div id="chat-box" class="chat-box"></div>
       <footer id="input-area" class="input-area">
@@ -109,4 +115,4 @@
   <script type="module" src="app.js"></script>
 </body>
           </html>
-          
+         nav-item-item
