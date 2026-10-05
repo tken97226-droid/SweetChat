@@ -13,8 +13,9 @@ import { evaluateAffection } from './affectionEngine.js';
 
 let characters = [];
 let activeCharacter = null;
+let currentCategory = 'all';
 
-// User Profile State & Helper Functions
+// User Profile State
 let userProfile = {
   name: 'User',
   avatar: 'https://via.placeholder.com/90',
@@ -56,7 +57,7 @@ const headerStatus = document.getElementById('header-status');
 const newChatBtn = document.getElementById('new-chat-btn');
 const bottomNav = document.getElementById('bottom-nav');
 
-// Profile DOM Elements
+// Profile Elements
 const userAvatarPreview = document.getElementById('user-avatar-preview');
 const userAvatarInput = document.getElementById('user-avatar-input');
 const userNameInput = document.getElementById('user-name-input');
@@ -64,23 +65,20 @@ const userAboutInput = document.getElementById('user-about-input');
 const userGenderSelect = document.getElementById('user-gender-select');
 const saveProfileBtn = document.getElementById('save-profile-btn');
 
-// Settings DOM Elements
+// Settings Elements
 const apiKeyInput = document.getElementById('api-key-input');
 const saveKeyBtn = document.getElementById('save-key-btn');
 const modelSelect = document.getElementById('model-select');
 
-// App Initialization
 document.addEventListener('DOMContentLoaded', () => {
   characters = getStoredCharacters();
   loadUserProfile();
 
-  // Populate Profile Form Data
   if (userAvatarPreview && userProfile.avatar) userAvatarPreview.src = userProfile.avatar;
   if (userNameInput) userNameInput.value = userProfile.name || '';
   if (userAboutInput) userAboutInput.value = userProfile.about || '';
   if (userGenderSelect) userGenderSelect.value = userProfile.gender || 'Male';
 
-  // Settings Initial Load
   const savedKey = getApiKey();
   if (savedKey && apiKeyInput) apiKeyInput.value = savedKey;
 
@@ -89,22 +87,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderCharacterList();
   setupNavigation();
+  setupCategoryTabs();
 
-  // Profile Image Upload Listener
   if (userAvatarInput) {
     userAvatarInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onloadend = () => {
-          userAvatarPreview.src = reader.result;
-        };
+        reader.onloadend = () => { userAvatarPreview.src = reader.result; };
         reader.readAsDataURL(file);
       }
     });
   }
 
-  // Save Profile Handler
   if (saveProfileBtn) {
     saveProfileBtn.addEventListener('click', () => {
       saveUserProfileData({
@@ -117,22 +112,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Settings Handlers
   if (saveKeyBtn) {
     saveKeyBtn.addEventListener('click', () => {
-      const key = apiKeyInput.value.trim();
-      saveApiKey(key);
+      saveApiKey(apiKeyInput.value.trim());
       alert('API Key သိမ်းဆည်းပြီးပါပြီ!');
     });
   }
 
   if (modelSelect) {
-    modelSelect.addEventListener('change', (e) => {
-      saveSelectedModel(e.target.value);
-    });
+    modelSelect.addEventListener('change', (e) => saveSelectedModel(e.target.value));
   }
 
-  // Chat Event Listeners
   if (sendBtn) sendBtn.addEventListener('click', handleSendMessage);
   if (chatInput) {
     chatInput.addEventListener('keypress', (e) => {
@@ -153,12 +143,30 @@ document.addEventListener('DOMContentLoaded', () => {
   if (backBtn) backBtn.addEventListener('click', showChatsTab);
 });
 
-// Render List of Characters
+// Category Filter Tabs
+function setupCategoryTabs() {
+  const catBtns = document.querySelectorAll('.cat-btn');
+  catBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      catBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCategory = btn.getAttribute('data-category');
+      renderCharacterList();
+    });
+  });
+}
+
+// Render Character Cards List
 function renderCharacterList() {
   if (!characterCardsList) return;
   characterCardsList.innerHTML = '';
 
-  characters.forEach(char => {
+  const filteredChars = characters.filter(char => {
+    if (currentCategory === 'all') return true;
+    return char.gender === currentCategory;
+  });
+
+  filteredChars.forEach(char => {
     const lastMsgObj = char.messages && char.messages.length > 0 ? char.messages[char.messages.length - 1] : null;
     const lastMsg = lastMsgObj ? lastMsgObj.content : (char.initialChatGreeting || "နှုတ်ဆက်လိုက်ပါ...");
 
@@ -179,7 +187,6 @@ function renderCharacterList() {
   });
 }
 
-// Bottom Navigation Setup
 function setupNavigation() {
   const navItems = document.querySelectorAll('.nav-item');
   navItems.forEach(item => {
@@ -188,13 +195,9 @@ function setupNavigation() {
       navItems.forEach(nav => nav.classList.remove('active'));
       item.classList.add('active');
 
-      if (targetTab === 'chats-view') {
-        showChatsTab();
-      } else if (targetTab === 'profile-view') {
-        showProfileTab();
-      } else if (targetTab === 'settings-view') {
-        showSettingsTab();
-      }
+      if (targetTab === 'chats-view') showChatsTab();
+      else if (targetTab === 'profile-view') showProfileTab();
+      else if (targetTab === 'settings-view') showSettingsTab();
     });
   });
 }
@@ -253,7 +256,6 @@ function openChatScreen(character) {
   settingsView.classList.remove('active');
   chatScreenView.classList.add('active');
 
-  // App Bar Setup
   backBtn.style.display = 'block';
   charAvatar.style.display = 'block';
   charAvatar.src = character.avatar;
@@ -263,7 +265,6 @@ function openChatScreen(character) {
   newChatBtn.style.display = 'block';
   bottomNav.style.display = 'none';
 
-  // Chat Box Initializing
   if (!character.messages || character.messages.length === 0) {
     if (character.initialChatGreeting) {
       character.messages = [{ role: 'assistant', content: character.initialChatGreeting }];
@@ -296,7 +297,6 @@ function scrollToBottom() {
   if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Message Dispatch & Affection Handling Logic
 async function handleSendMessage() {
   const text = chatInput.value.trim();
   if (!text || !activeCharacter) return;
@@ -307,14 +307,12 @@ async function handleSendMessage() {
     return;
   }
 
-  // 1. User Message Push
   if (!activeCharacter.messages) activeCharacter.messages = [];
   activeCharacter.messages.push({ role: 'user', content: text });
   appendMessageUI('user', text);
   chatInput.value = '';
   saveCharacters(characters);
 
-  // 2. Typing Indicator Render
   const typingDiv = document.createElement('div');
   typingDiv.className = 'message model';
   typingDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
@@ -324,7 +322,6 @@ async function handleSendMessage() {
   try {
     const selectedModel = getSelectedModel();
 
-    // Dynamically Inject User Profile into System Prompt
     const fullSystemPrompt = `${activeCharacter.systemPrompt}
 
 USER PROFILE INFORMATION:
@@ -332,7 +329,6 @@ USER PROFILE INFORMATION:
 - Gender: ${userProfile.gender}
 - About User: ${userProfile.about || 'Not provided'}`;
 
-    // 3. API Request
     const rawReply = await sendChatMessage(
       apiKey,
       selectedModel,
@@ -340,28 +336,20 @@ USER PROFILE INFORMATION:
       activeCharacter.messages
     );
 
-    // Typing Animation Remove
-    if (chatBox.contains(typingDiv)) {
-      chatBox.removeChild(typingDiv);
-    }
+    if (chatBox.contains(typingDiv)) chatBox.removeChild(typingDiv);
 
-    // 4. Affection Sentiment Analysis
     const { cleanText, affectionDelta } = evaluateAffection(rawReply, text);
 
-    // Affection Update
     activeCharacter.affection = (activeCharacter.affection || 0) + affectionDelta;
     headerStatus.textContent = `Affection: ${activeCharacter.affection}`;
 
-    // 5. Assistant Response Push
     activeCharacter.messages.push({ role: 'assistant', content: cleanText });
     appendMessageUI('model', cleanText);
 
     saveCharacters(characters);
   } catch (error) {
-    if (chatBox.contains(typingDiv)) {
-      chatBox.removeChild(typingDiv);
-    }
+    if (chatBox.contains(typingDiv)) chatBox.removeChild(typingDiv);
     appendMessageUI('model', ` Error: ${error.message}`);
   }
   }
-    
+  
