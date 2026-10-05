@@ -11,25 +11,31 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
     }))
   ];
 
-  // အရင် OpenRouter Model ID အဟောင်းများ ပါလာပါက Pollinations Model များသို့ အလိုအလျောက် ပြောင်းပေးရန်
-  let targetModel = selectedModel || 'mistral';
-  if (targetModel.includes('/') || !FREE_MODELS.includes(targetModel)) {
-    const lower = targetModel.toLowerCase();
-    if (lower.includes('llama')) targetModel = 'llama';
-    else if (lower.includes('evil') || lower.includes('uncensored')) targetModel = 'evil';
-    else if (lower.includes('gpt') || lower.includes('openai')) targetModel = 'openai';
-    else targetModel = 'mistral'; // Gemini အပါအဝင် အခြား Model များအတွက် mistral သို့ ညွှန်းမည်
+  // OpenRouter Model Name များကို Pollinations အခမဲ့ Model မျိုးသို့ အလိုအလျောက် ပြောင်းပေးခြင်း
+  let targetModel = 'mistral'; // Default မော်ဒယ်
+  
+  if (selectedModel) {
+    const lowerModel = selectedModel.toLowerCase();
+    if (lowerModel.includes('llama')) {
+      targetModel = 'llama';
+    } else if (lowerModel.includes('evil') || lowerModel.includes('uncensored')) {
+      targetModel = 'evil';
+    } else if (lowerModel.includes('gpt') || lowerModel.includes('openai')) {
+      targetModel = 'openai';
+    } else if (lowerModel.includes('qwen')) {
+      targetModel = 'qwen-coder';
+    } else {
+      targetModel = 'mistral';
+    }
   }
 
   try {
-    const headers = { 'Content-Type': 'application/json' };
-    
-    // Key ထည့်ထားပါက Authorization Header ပို့မည် (မပါလျှင်လည်း Free ခေါ်ယူနိုင်သည်)
-    if (apiKey) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
-    }
+    // API Key အဟောင်း ပို့မိပါက Paid Pollen Error တက်နိုင်သဖြင့် Header တွင် Authorization မထည့်ဘဲ ရိုးရိုးခေါ်ယူမည်
+    const headers = {
+      'Content-Type': 'application/json'
+    };
 
-    const response = await fetch('https://gen.pollinations.ai/v1/chat/completions', {
+    const response = await fetch('https://text.pollinations.ai/openai', {
       method: 'POST',
       headers: headers,
       body: JSON.stringify({
@@ -43,7 +49,7 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
       let errText = `HTTP ${response.status}`;
       try {
         const errorData = await response.json();
-        errText = errorData.error?.message || errText;
+        errText = errorData.error?.message || errorData.message || errText;
       } catch (e) {}
       throw new Error(`[Pollinations AI Error] ${errText}`);
     }
@@ -61,4 +67,4 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
     console.error('API Call Error:', err);
     throw new Error(err.message || 'Model တုံ့ပြန်မှု မရှိပါ။ ခဏနေမှ ပြန်စမ်းကြည့်ပါ။');
   }
-                           }
+        }
