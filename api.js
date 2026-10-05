@@ -11,13 +11,20 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
     }))
   ];
 
-  // Pollinations AI Endpoint သို့ ပို့မည်
-  try {
-    const headers = {
-      'Content-Type': 'application/json'
-    };
+  // အရင် OpenRouter Model ID အဟောင်းများ ပါလာပါက Pollinations Model များသို့ အလိုအလျောက် ပြောင်းပေးရန်
+  let targetModel = selectedModel || 'mistral';
+  if (targetModel.includes('/') || !FREE_MODELS.includes(targetModel)) {
+    const lower = targetModel.toLowerCase();
+    if (lower.includes('llama')) targetModel = 'llama';
+    else if (lower.includes('evil') || lower.includes('uncensored')) targetModel = 'evil';
+    else if (lower.includes('gpt') || lower.includes('openai')) targetModel = 'openai';
+    else targetModel = 'mistral'; // Gemini အပါအဝင် အခြား Model များအတွက် mistral သို့ ညွှန်းမည်
+  }
 
-    // API Key ရှိပါက Authorization Header ထည့်မည်
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    
+    // Key ထည့်ထားပါက Authorization Header ပို့မည် (မပါလျှင်လည်း Free ခေါ်ယူနိုင်သည်)
     if (apiKey) {
       headers['Authorization'] = `Bearer ${apiKey}`;
     }
@@ -26,7 +33,7 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
       method: 'POST',
       headers: headers,
       body: JSON.stringify({
-        model: selectedModel || 'mistral', // 'mistral' သို့မဟုတ် 'evil' သုံးနိုင်သည်
+        model: targetModel,
         messages: messages,
         temperature: 0.85
       })
@@ -45,7 +52,7 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
     const replyText = data.choices?.[0]?.message?.content;
 
     if (replyText) {
-      return replyText; // အောင်မြင်စွာ စာပြန်ပါက စကားပြန်ကို တန်းထုတ်ပေးမည်
+      return replyText;
     } else {
       throw new Error('AI ထံမှ တုံ့ပြန်မှု မရရှိပါ။');
     }
@@ -54,4 +61,4 @@ export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messa
     console.error('API Call Error:', err);
     throw new Error(err.message || 'Model တုံ့ပြန်မှု မရှိပါ။ ခဏနေမှ ပြန်စမ်းကြည့်ပါ။');
   }
-          }
+                           }
