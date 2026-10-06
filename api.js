@@ -5,7 +5,7 @@ export async function sendChatMessage(apiKeyInputText, selectedModel, systemProm
     throw new Error('API Key မရှိပါ။ ကျေးဇူးပြု၍ Settings တွင် Key ထည့်သွင်းပေးပါ။');
   }
 
-  // Key စာကြောင်းများကို လိုင်းခွဲလိုက်မည် (Multi-key Support)
+  // Multi-key support: Enter ခေါက်ပြီး ထည့်ထားသော Key များကို လိုင်းခွဲယူမည်
   const keys = apiKeyInputText
     .split('\n')
     .map(k => k.trim())
@@ -15,7 +15,6 @@ export async function sendChatMessage(apiKeyInputText, selectedModel, systemProm
     throw new Error('ထည့်သွင်းထားသော API Key များ မမှန်ကန်ပါ။');
   }
 
-  // Token limit ထိန်းရန် နောက်ဆုံး Message 20 ကိုသာ ယူမည်
   const recentMessages = messagesHistory.slice(-20);
   const messages = [];
 
@@ -28,12 +27,9 @@ export async function sendChatMessage(apiKeyInputText, selectedModel, systemProm
     content: msg.content
   })));
 
-  // Selected Model ကို ရှေ့ဆုံးထားပြီး Free Models စာရင်း အစဉ်လိုက် ရွေးမည်
   const modelsToTry = Array.from(new Set([selectedModel, ...FREE_MODELS].filter(Boolean)));
-
   let lastError = null;
 
-  // Key Loop + Model Loop Multi-Fallback Logic
   for (const key of keys) {
     const isGroq = key.startsWith('gsk_');
     const endpoint = isGroq 
@@ -41,7 +37,6 @@ export async function sendChatMessage(apiKeyInputText, selectedModel, systemProm
       : 'https://openrouter.ai/api/v1/chat/completions';
 
     for (const model of modelsToTry) {
-      // Groq Key ဖြစ်ပါက OpenRouter ရဲ့ :free သီးသန့် Models များကို ကျော်မည်
       if (isGroq && model.includes(':free')) continue;
 
       try {
@@ -69,14 +64,14 @@ export async function sendChatMessage(apiKeyInputText, selectedModel, systemProm
           } catch (e) {}
 
           lastError = new Error(`[${isGroq ? 'Groq' : 'OpenRouter'} | ${model}] ${errText}`);
-          continue; // အဆင်မပြေပါက နောက် Model/Key တစ်ခုသို့ ကူးမည်
+          continue;
         }
 
         const data = await response.json();
         const replyText = data.choices?.[0]?.message?.content;
 
         if (replyText) {
-          return replyText; // အောင်မြင်ပါက စာပြန်တိုင်ပင်မှု ပြန်ထုတ်ပေးမည်
+          return replyText;
         }
       } catch (err) {
         lastError = err;
@@ -84,6 +79,5 @@ export async function sendChatMessage(apiKeyInputText, selectedModel, systemProm
     }
   }
 
-  throw new Error(lastError ? lastError.message : 'API Key နှင့် Model များ အားလုံး အဆင်မပြေပါ။');
-      }
-  
+  throw new Error(lastError ? lastError.message : 'Model/Key များ အားလုံး တုံ့ပြန်မှု မရှိပါ။');
+    }
