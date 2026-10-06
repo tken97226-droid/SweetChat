@@ -1,5 +1,7 @@
 export const FREE_MODELS = [
-  'llama-3.3-70b',
-  'hermes-3-llama-3.1-8b',
-  'mistral-7b-instruct'
+  'meta-llama/llama-3.1-8b-instruct:free',
+  'google/gemini-2.0-flash-lite-preview-02-05:free',
+  'google/gemini-2.0-flash-exp:free',
+  'qwen/qwen-2.5-coder-32b-instruct:free',
+  'mistralai/mistral-7b-instruct:free'
 ];
