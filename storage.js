@@ -16,7 +16,6 @@ export function getStoredCharacters() {
       if (Array.isArray(parsed) && parsed.length > 0) {
         let updated = false;
 
-        // DEFAULT_CHARACTERS ထဲရှိ Character အသစ်များ (Rem, Makima) ပါမပါ စစ်ပြီး အလိုအလျောက် ပေါင်းထည့်ပေးခြင်း
         DEFAULT_CHARACTERS.forEach(defaultChar => {
           const exists = parsed.some(c => c.id === defaultChar.id);
           if (!exists) {
@@ -70,10 +69,9 @@ export function saveApiKey(key) {
 }
 
 export function getSelectedModel() {
-  return localStorage.getItem(STORAGE_KEYS.SELECTED_MODEL) || 'meta-llama/llama-3.1-8b-instruct:free';
+  return localStorage.getItem(STORAGE_KEYS.SELECTED_MODEL) || 'llama-3.3-70b-versatile';
 }
 
 export function saveSelectedModel(model) {
   localStorage.setItem(STORAGE_KEYS.SELECTED_MODEL, model);
-}
-  
+                                     }
