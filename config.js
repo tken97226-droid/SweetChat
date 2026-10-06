@@ -1,4 +1,4 @@
-// Fallback စနစ်အတွက် အသုံးပြုမည့် Free Models များ စာရင်း
+// OpenRouter နှင့် Groq ပေါ်မှ အခမဲ့ သုံးနိုင်သော မော်ဒယ်များ စာရင်း
 export const FREE_MODELS = [
   'llama-3.3-70b-versatile',
   'qwen/qwen3.8-27b',
