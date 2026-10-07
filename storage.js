@@ -75,4 +75,4 @@ export function getSelectedModel() {
 
 export function saveSelectedModel(model) {
   localStorage.setItem(STORAGE_KEYS.SELECTED_MODEL, model);
-}
+                              }
