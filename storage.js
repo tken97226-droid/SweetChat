@@ -1,11 +1,11 @@
 import { DEFAULT_CHARACTERS } from './defaultCharacters.js';
 
 const STORAGE_KEYS = {
-  CHARACTERS: 'sweetchat_characters_v1',
-  ACTIVE_CHARACTER_ID: 'sweetchat_active_char_id_v1',
-  API_KEYS: 'sweetchat_api_keys_v1',
-  SELECTED_MODEL: 'sweetchat_selected_model_v1',
-  USER_NAME: 'sweetchat_user_name_v1'
+  CHARACTERS: 'sweetchat_characters_v3',
+  ACTIVE_CHARACTER_ID: 'sweetchat_active_char_id_v3',
+  API_KEYS: 'sweetchat_api_keys_v3',
+  SELECTED_MODEL: 'sweetchat_selected_model_v3',
+  USER_NAME: 'sweetchat_user_name_v3'
 };
 
 export function getStoredCharacters() {
@@ -69,10 +69,10 @@ export function saveApiKey(key) {
 }
 
 export function getSelectedModel() {
-  // OpenRouter Free Model ID အမှန်သို့ ပြောင်းလဲထားပါသည်
   return localStorage.getItem(STORAGE_KEYS.SELECTED_MODEL) || 'meta-llama/llama-3.3-70b-instruct:free';
 }
 
 export function saveSelectedModel(model) {
   localStorage.setItem(STORAGE_KEYS.SELECTED_MODEL, model);
-                              }
+}
+  
