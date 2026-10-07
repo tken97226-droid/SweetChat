@@ -1,4 +1,3 @@
-// OpenRouter အခမဲ့ Roleplay မော်ဒယ်များ
 export const FREE_MODELS = [
   'meta-llama/llama-3.3-70b-instruct:free',
   'openrouter/free',
