@@ -53,4 +53,5 @@ export function evaluateAffection(rawReplyText = '', userMessageText = '') {
 
   affectionDelta = Math.max(-5, Math.min(5, affectionDelta));
   return { cleanText, affectionDelta };
-  }
+}
+  
