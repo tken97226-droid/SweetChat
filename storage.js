@@ -69,9 +69,10 @@ export function saveApiKey(key) {
 }
 
 export function getSelectedModel() {
-  return localStorage.getItem(STORAGE_KEYS.SELECTED_MODEL) || 'llama-3.3-70b-versatile';
+  // OpenRouter Free Model ID အမှန်သို့ ပြောင်းလဲထားပါသည်
+  return localStorage.getItem(STORAGE_KEYS.SELECTED_MODEL) || 'meta-llama/llama-3.3-70b-instruct:free';
 }
 
 export function saveSelectedModel(model) {
   localStorage.setItem(STORAGE_KEYS.SELECTED_MODEL, model);
-                                     }
+}
