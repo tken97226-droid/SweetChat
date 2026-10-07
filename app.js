@@ -13,7 +13,6 @@ import { evaluateAffection } from './affectionEngine.js';
 
 let characters = [];
 let activeCharacter = null;
-let currentCategory = 'all';
 
 let userProfile = {
   name: 'User',
@@ -38,7 +37,6 @@ function saveUserProfileData(data) {
   localStorage.setItem('sweet_chat_user_profile', JSON.stringify(userProfile));
 }
 
-// DOM Elements
 const chatsView = document.getElementById('chats-view');
 const profileView = document.getElementById('profile-view');
 const settingsView = document.getElementById('settings-view');
@@ -56,7 +54,6 @@ const headerStatus = document.getElementById('header-status');
 const newChatBtn = document.getElementById('new-chat-btn');
 const bottomNav = document.getElementById('bottom-nav');
 
-// Profile Elements
 const userAvatarPreview = document.getElementById('user-avatar-preview');
 const userAvatarInput = document.getElementById('user-avatar-input');
 const userNameInput = document.getElementById('user-name-input');
@@ -64,7 +61,6 @@ const userAboutInput = document.getElementById('user-about-input');
 const userGenderSelect = document.getElementById('user-gender-select');
 const saveProfileBtn = document.getElementById('save-profile-btn');
 
-// Settings Elements
 const apiKeyInput = document.getElementById('api-key-input');
 const saveKeyBtn = document.getElementById('save-key-btn');
 const modelSelect = document.getElementById('model-select');
@@ -92,7 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onloadend = () => { userAvatarPreview.src = reader.result; };
+        reader.onloadend = () => {
+          userAvatarPreview.src = reader.result;
+        };
         reader.readAsDataURL(file);
       }
     });
@@ -112,13 +110,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (saveKeyBtn) {
     saveKeyBtn.addEventListener('click', () => {
-      saveApiKey(apiKeyInput.value.trim());
+      const key = apiKeyInput.value.trim();
+      saveApiKey(key);
       alert('API Key သိမ်းဆည်းပြီးပါပြီ!');
     });
   }
 
   if (modelSelect) {
-    modelSelect.addEventListener('change', (e) => saveSelectedModel(e.target.value));
+    modelSelect.addEventListener('change', (e) => {
+      saveSelectedModel(e.target.value);
+    });
   }
 
   if (sendBtn) sendBtn.addEventListener('click', handleSendMessage);
@@ -174,9 +175,13 @@ function setupNavigation() {
       navItems.forEach(nav => nav.classList.remove('active'));
       item.classList.add('active');
 
-      if (targetTab === 'chats-view') showChatsTab();
-      else if (targetTab === 'profile-view') showProfileTab();
-      else if (targetTab === 'settings-view') showSettingsTab();
+      if (targetTab === 'chats-view') {
+        showChatsTab();
+      } else if (targetTab === 'profile-view') {
+        showProfileTab();
+      } else if (targetTab === 'settings-view') {
+        showSettingsTab();
+      }
     });
   });
 }
@@ -282,7 +287,7 @@ async function handleSendMessage() {
 
   const apiKey = getApiKey();
   if (!apiKey) {
-    alert('ကျေးဇူးပြု၍ Settings ထဲတွင် API Key ကို အရင်ထည့်သွင်းပေးပါ!');
+    alert('ကျေးဇူးပြု၍ Settings ထဲတွင် OpenRouter API Key ကို အရင်ထည့်သွင်းပေးပါ!');
     return;
   }
 
@@ -315,7 +320,9 @@ USER PROFILE INFORMATION:
       activeCharacter.messages
     );
 
-    if (chatBox.contains(typingDiv)) chatBox.removeChild(typingDiv);
+    if (chatBox.contains(typingDiv)) {
+      chatBox.removeChild(typingDiv);
+    }
 
     const { cleanText, affectionDelta } = evaluateAffection(rawReply, text);
 
@@ -327,8 +334,10 @@ USER PROFILE INFORMATION:
 
     saveCharacters(characters);
   } catch (error) {
-    if (chatBox.contains(typingDiv)) chatBox.removeChild(typingDiv);
-    appendMessageUI('model', ` Error: ${error.message}`);
+    if (chatBox.contains(typingDiv)) {
+      chatBox.removeChild(typingDiv);
+    }
+    appendMessageUI('model', `Error: ${error.message}`);
   }
-          }
-            
+  }
+  
