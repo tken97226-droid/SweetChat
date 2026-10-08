@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SweetChat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button id="back-btn" class="btn-back" style="display: none;">←</button>
+        <img id="char-avatar" src="Susuki.jpeg" class="avatar-img" style="display: none;" />
+        <div class="header-user-info">
+          <h3 id="header-title">SweetChat</h3>
+          <span id="header-status" style="display: none;">last seen recently</span>
+        </div>
+      </div>
+      <div>
+        <button id="new-chat-btn" class="btn-new-chat" style="display: none;">New Chat</button>
+      </div>
+    </header>
+
+    <!-- Tab 1: Chats View -->
+    <div id="chats-view" class="view-content active">
+      <div id="character-cards-list"></div>
+    </div>
+
+    <!-- Tab 2: User Profile View -->
+    <div id="profile-view" class="view-content">
+      <div class="profile-container">
+        <h3>My Profile</h3>
+        <div class="setting-group">
+          <div class="profile-avatar-wrapper">
+            <img id="user-avatar-preview" src="./default-avatar.png" class="profile-avatar-preview" />
+            <label class="btn-upload-photo">
+              📷 Change Photo
+              <input type="file" id="user-avatar-input" accept="image/*" style="display: none;" />
+            </label>
+          </div>
+          <div>
+            <label for="user-name-input">Your Name</label>
+            <input type="text" id="user-name-input" placeholder="e.g. Sky" />
+          </div>
+          <div>
+            <label for="user-about-input">✨ About You (Shared with AI)</label>
+            <textarea id="user-about-input" rows="3" placeholder="Share your interests, hobbies, work, or lifestyle..."></textarea>
+          </div>
+          <div>
+            <label for="user-gender-select">Gender</label>
+            <select id="user-gender-select">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <button id="save-profile-btn" class="btn-save">Save Profile</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Settings View -->
+    <div id="settings-view" class="view-content">
+      <div class="settings-container">
+        <h3>Settings</h3>
+        <div class="setting-group">
+          <label for="api-key-input">OpenRouter API Key</label>
+          <input type="password" id="api-key-input" placeholder="Enter your API Key here" />
+          <button id="save-key-btn" class="btn-save">Save Key</button>
+        </div>
+        <div class="setting-group">
+          <label for="model-select">Select AI Model</label>
+          <select id="model-select">
+            <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite</option>
+            <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B (Free)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Screen View (Box + Fixed Input) -->
+    <div id="chat-screen-view">
+      <div id="chat-box" class="chat-box"></div>
+      <footer id="input-area" class="input-area">
+        <input type="text" id="chat-input" placeholder="Message..." />
+        <button id="send-btn">Send</button>
+      </footer>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav" id="bottom-nav">
+      <div class="nav-item active" data-tab="chats-view">
+        <span class="nav-icon">💬</span>
+        <span>Chats</span>
+      </div>
+      <div class="nav-item" data-tab="profile-view">
+        <span class="nav-icon">👤</span>
+        <span>Profile</span>
+      </div>
+      <div class="nav-item" data-tab="settings-view">
+        <span class="nav-icon">⚙️</span>
+        <span>Settings</span>
+      </div>
+    </nav>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+          </html>
+          
