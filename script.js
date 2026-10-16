@@ -78,7 +78,7 @@ window.sendMessage = async function() {
                 'X-Title': 'SweetChat'
             },
             body: JSON.stringify({
-                model: 'google/gemma-2-9b-it:free',
+                model: 'google/gemma-4-31b-it:free',
                 messages: [
                     { role: 'system', content: yorCharacter.prompt },
                     ...messageHistory.map(m => ({ role: m.role, content: m.content }))
@@ -132,5 +132,4 @@ window.saveSettings = function() {
 function loadSettings() {
     const savedKey = localStorage.getItem('openrouter_key');
     if (savedKey) document.getElementById('apiKeyInputField').value = savedKey;
-        }
-    
+}
