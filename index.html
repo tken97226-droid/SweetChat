@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SweetChat - Yor Forger</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+        <h1>SweetChat : Yor Forger</h1>
+        <button class="settings-btn" onclick="toggleModal(true)"><i class="fas fa-cog"></i></button>
+    </header>
+
+    <!-- Chat Header -->
+    <div class="chat-header">
+        <img src="./Yor Forger.jpeg" alt="Yor" onerror="this.src='https://via.placeholder.com/40'">
+        <div class="chat-header-info">
+            <h3>Yor Forger</h3>
+            <span>Online</span>
+        </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="chat-messages" id="chatMessagesBox"></div>
+
+    <!-- Input Box -->
+    <div class="chat-input-area">
+        <input type="text" id="userInputField" placeholder="စကားပြောရန် စာရိုက်ပါ..." autocomplete="off" onkeydown="if(event.key==='Enter') sendMessage()">
+        <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h3>Settings</h3>
+            <div class="form-group">
+                <label>OpenRouter API Key</label>
+                <input type="password" id="apiKeyInputField" placeholder="sk-or-v1-xxxxxxxxxxxx">
+            </div>
+            <div class="modal-btns">
+                <button class="close-btn" onclick="toggleModal(false)">ပိတ်မည်</button>
+                <button class="save-btn" onclick="saveSettings()">သိမ်းမည်</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+  </html>
+  
