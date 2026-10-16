@@ -2,7 +2,7 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SweetChat - Yor Forger</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -27,30 +27,30 @@
 
     <!-- Messages Container -->
     <div class="chat-messages" id="chatMessagesBox"></div>
+</div>
 
-    <!-- Input Box -->
-    <div class="chat-input-area">
-        <input type="text" id="userInputField" placeholder="စကားပြောရန် စာရိုက်ပါ..." autocomplete="off" onkeydown="if(event.key==='Enter') sendMessage()">
-        <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
-    </div>
+<!-- Input Box (Placed outside container to stay fixed at bottom) -->
+<div class="chat-input-area">
+    <input type="text" id="userInputField" placeholder="စကားပြောရန် စာရိုက်ပါ..." autocomplete="off" onkeydown="if(event.key==='Enter') sendMessage()">
+    <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+</div>
 
-    <!-- Settings Modal -->
-    <div class="modal" id="settingsModal">
-        <div class="modal-content">
-            <h3>Settings</h3>
-            <div class="form-group">
-                <label>OpenRouter API Key</label>
-                <input type="password" id="apiKeyInputField" placeholder="sk-or-v1-xxxxxxxxxxxx">
-            </div>
-            <div class="modal-btns">
-                <button class="close-btn" onclick="toggleModal(false)">ပိတ်မည်</button>
-                <button class="save-btn" onclick="saveSettings()">သိမ်းမည်</button>
-            </div>
+<!-- Settings Modal -->
+<div class="modal" id="settingsModal">
+    <div class="modal-content">
+        <h3>Settings</h3>
+        <div class="form-group">
+            <label>OpenRouter API Key</label>
+            <input type="password" id="apiKeyInputField" placeholder="sk-or-v1-xxxxxxxxxxxx">
+        </div>
+        <div class="modal-btns">
+            <button class="close-btn" onclick="toggleModal(false)">ပိတ်မည်</button>
+            <button class="save-btn" onclick="saveSettings()">သိမ်းမည်</button>
         </div>
     </div>
 </div>
 
 <script type="module" src="script.js"></script>
 </body>
-  </html>
-  
+    </html>
+    
