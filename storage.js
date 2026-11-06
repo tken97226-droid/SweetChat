@@ -1,79 +1,132 @@
 import { DEFAULT_CHARACTERS } from './defaultCharacters.js';
 
-const STORAGE_KEYS = {
-  CHARACTERS: 'sweetchat_characters_v1',
-  ACTIVE_CHARACTER_ID: 'sweetchat_active_char_id_v1',
-  API_KEYS: 'sweetchat_api_keys_v1',
-  SELECTED_MODEL: 'sweetchat_selected_model_v1',
-  USER_NAME: 'sweetchat_user_name_v1'
+const KEYS = {
+  CHARACTERS: 'sweetchat_characters_v2',
+  ACTIVE: 'sweetchat_active_char_v1',
+  API: 'sweetchat_api_keys_v1',
+  MODEL: 'sweetchat_selected_model_v2',
+  PROFILE: 'sweet_chat_user_profile'
 };
+
+const clone = value => JSON.parse(JSON.stringify(value));
 
 export function getStoredCharacters() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.CHARACTERS);
-    if (raw) {
-      let parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        let updated = false;
+    const raw =
+      localStorage.getItem(KEYS.CHARACTERS) ||
+      localStorage.getItem('sweetchat_characters_v1');
 
-        // DEFAULT_CHARACTERS ထဲရှိ Character အသစ်များ (Rem, Makima) ပါမပါ စစ်ပြီး အလိုအလျောက် ပေါင်းထည့်ပေးခြင်း
-        DEFAULT_CHARACTERS.forEach(defaultChar => {
-          const exists = parsed.some(c => c.id === defaultChar.id);
-          if (!exists) {
-            parsed.push(defaultChar);
-            updated = true;
-          }
-        });
+    const stored = raw ? JSON.parse(raw) : [];
 
-        if (updated) {
-          saveCharacters(parsed);
+    if (Array.isArray(stored) && stored.length) {
+      const merged = stored
+        .filter(c => c && c.id)
+        .map(c => ({
+          level: 1,
+          affection: 0,
+          messages: [],
+          memory: '',
+          tags: [],
+          ...c,
+          messages: Array.isArray(c.messages)
+            ? c.messages
+            : []
+        }));
+
+      for (const def of DEFAULT_CHARACTERS) {
+        if (!merged.some(c => c.id === def.id)) {
+          merged.push(clone(def));
         }
-        return parsed;
       }
+
+      saveCharacters(merged);
+      return merged;
     }
-  } catch (e) {
-    console.error('Failed to load stored characters:', e);
+  } catch (error) {
+    console.warn('Character data could not be loaded:', error);
   }
 
-  saveCharacters(DEFAULT_CHARACTERS);
-  return DEFAULT_CHARACTERS;
+  const defaults = clone(DEFAULT_CHARACTERS);
+  saveCharacters(defaults);
+
+  return defaults;
 }
 
 export function saveCharacters(characters) {
   try {
-    localStorage.setItem(STORAGE_KEYS.CHARACTERS, JSON.stringify(characters));
-  } catch (e) {
-    console.error('Failed to save characters:', e);
+    localStorage.setItem(
+      KEYS.CHARACTERS,
+      JSON.stringify(characters)
+    );
+
+    return true;
+  } catch (error) {
+    console.error('Could not save characters:', error);
+    return false;
   }
 }
 
 export function getActiveCharacterId() {
-  return localStorage.getItem(STORAGE_KEYS.ACTIVE_CHARACTER_ID) || 'char-suzuki';
+  return localStorage.getItem(KEYS.ACTIVE) || 'char-suzuki';
 }
 
 export function setActiveCharacterId(id) {
-  localStorage.setItem(STORAGE_KEYS.ACTIVE_CHARACTER_ID, id);
+  localStorage.setItem(KEYS.ACTIVE, id);
 }
 
 export function getActiveCharacter() {
-  const chars = getStoredCharacters();
-  const activeId = getActiveCharacterId();
-  return chars.find(c => c.id === activeId) || chars[0] || DEFAULT_CHARACTERS[0];
+  const list = getStoredCharacters();
+
+  return (
+    list.find(c => c.id === getActiveCharacterId()) ||
+    list[0] ||
+    null
+  );
 }
 
 export function getApiKey() {
-  return localStorage.getItem(STORAGE_KEYS.API_KEYS) || '';
+  return localStorage.getItem(KEYS.API) || '';
 }
 
 export function saveApiKey(key) {
-  localStorage.setItem(STORAGE_KEYS.API_KEYS, key.trim());
+  localStorage.setItem(
+    KEYS.API,
+    String(key || '').trim()
+  );
 }
 
 export function getSelectedModel() {
-  return localStorage.getItem(STORAGE_KEYS.SELECTED_MODEL) || 'meta-llama/llama-3.1-8b-instruct:free';
+  return localStorage.getItem(KEYS.MODEL) || 'openrouter/free';
 }
 
 export function saveSelectedModel(model) {
-  localStorage.setItem(STORAGE_KEYS.SELECTED_MODEL, model);
+  localStorage.setItem(KEYS.MODEL, model);
 }
-  
+
+export function getUserProfile() {
+  try {
+    return {
+      name: 'User',
+      avatar: '',
+      about: '',
+      gender: 'Other',
+      ...JSON.parse(
+        localStorage.getItem(KEYS.PROFILE) || '{}'
+      )
+    };
+  } catch {
+    return {
+      name: 'User',
+      avatar: '',
+      about: '',
+      gender: 'Other'
+    };
+  }
+}
+
+export function saveUserProfile(profile) {
+  localStorage.setItem(
+    KEYS.PROFILE,
+    JSON.stringify(profile)
+  );
+}
