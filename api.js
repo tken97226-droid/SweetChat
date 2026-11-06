@@ -1,67 +1,81 @@
 import { FREE_MODELS } from './config.js';
 
-export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messagesHistory) {
-  if (!apiKey) {
-    throw new Error('API Key မရှိပါ။ OpenRouter API Key ကို ထည့်သွင်းပေးပါ။');
-  }
+const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
 
-  // Token limit မကျော်အောင် နောက်ဆုံး message 20 ကိုပဲ ယူမည်
-  const recentMessages = messagesHistory.slice(-20);
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    ...recentMessages.map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'assistant',
-      content: msg.content
-    }))
-  ];
+export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messagesHistory, options = {}) {
+  if (!apiKey) throw new Error('OpenRouter API Key မရှိသေးပါ။ Settings ထဲမှာ ထည့်ပေးပါ။');
 
-  // User ရွေးထားသော model ကို အရင်စမ်းမည်၊ ထို့နောက် အခြား Free models များကို အဆင်လိုက် စမ်းမည်
-  const modelsToTry = Array.from(new Set([selectedModel, ...FREE_MODELS].filter(Boolean)));
+  const history = (messagesHistory || []).slice(-24).map(m => ({
+    role: m.role === 'user' ? 'user' : 'assistant',
+    content: String(m.content || '')
+  })).filter(m => m.content.trim());
 
-  let lastError = null;
+  const messages = [{ role: 'system', content: systemPrompt }, ...history];
 
-  // Model တစ်ခုပြီးတစ်ခု Loop ပတ်ပြီး စမ်းသပ်ခေါ်ယူမည်
-  for (const model of modelsToTry) {
+  const preferred = selectedModel || 'openrouter/free';
+
+  const models = preferred === 'openrouter/free'
+    ? ['openrouter/free', ...FREE_MODELS]
+    : [preferred, ...FREE_MODELS, 'openrouter/free'];
+
+  const uniqueModels = [...new Set(models)];
+
+  let lastError = 'Model တစ်ခုမှ အဖြေမပေးနိုင်ပါ။';
+
+  for (const model of uniqueModels) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 60000);
+
     try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const response = await fetch(ENDPOINT, {
         method: 'POST',
+        signal: controller.signal,
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
           'HTTP-Referer': window.location.origin,
           'X-Title': 'SweetChat'
         },
         body: JSON.stringify({
-          model: model,
-          messages: messages,
-          temperature: 0.85,
-          max_tokens: 1024
+          model,
+          messages,
+          temperature: 0.9,
+          max_tokens: 900,
+          ...(options.provider ? { provider: options.provider } : {})
         })
       });
 
+      const data = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        let errText = `HTTP ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errText = errorData.error?.message || errText;
-        } catch (e) {}
-        
-        // Error ဖြစ်ပါက နောက် Model တစ်ခုသို့ ကူးရန် သိမ်းထားမည်
-        lastError = new Error(`[Model: ${model}] ${errText}`);
-        continue; // နောက် Model တစ်ခုဖြင့် ထပ်မံ ကြိုးစားမည်
+        lastError = data.error?.message || `HTTP ${response.status}`;
+
+        if ([400, 401, 403].includes(response.status)) break;
+
+        continue;
       }
 
-      const data = await response.json();
-      const replyText = data.choices?.[0]?.message?.content;
+      const content = data.choices?.[0]?.message?.content;
 
-      if (replyText) {
-        return replyText; // အောင်မြင်စွာ စာပြန်ပါက စကားပြန်ကို တန်းထုတ်ပေးမည်
+      const reply = Array.isArray(content)
+        ? content.map(part => part.text || '').join('')
+        : content;
+
+      if (typeof reply === 'string' && reply.trim()) {
+        return reply.trim();
       }
-    } catch (err) {
-      lastError = err;
+
+      lastError = 'Model က စာသားအဖြေ မပြန်လာပါ။';
+
+    } catch (error) {
+      lastError = error.name === 'AbortError'
+        ? 'တုံ့ပြန်ချိန် ၆၀ စက္ကန့်ကျော်သွားပါတယ်။'
+        : error.message;
+
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
-  // Models အားလုံး Limit ကုန် သို့မဟုတ် Error တက်မှသာ Error ပြမည်
-  throw new Error(lastError ? lastError.message : 'Model အားလုံး တုံ့ပြန်မှု မရှိပါ။');
-            }
+  throw new Error(lastError);
+}
