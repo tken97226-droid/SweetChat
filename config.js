@@ -1,37 +1,51 @@
-// OpenRouter free chat models.
-// Free model စာရင်းတွေက အချိန်နဲ့အမျှ ပြောင်းလဲနိုင်ပါတယ်။
+// ==========================================
+// SWEETCHAT - GOOGLE GEMINI MODELS
+// ==========================================
+
+// Gemini API Models
+// FREE_MODELS ဆိုတဲ့ variable name ကို
+// api.js နဲ့ ချိတ်ဆက်မှုမပျက်အောင် မပြောင်းထားပါ။
 
 export const FREE_MODELS = [
-  'dots-studio/dots-3-note-preview:free',
-  'nvidia/nemotron-3-ultra-550b-a55b:free',
-  'nvidia/nemotron-3.5-super-vl:free',
-  'xingchen-agi/xing4.0-29b-a4b:free',
-  'liquid/lfm-2.5-2.6b:free'
+  'gemini-3.8-flash',
+  'gemini-3.7-flash',
+  'gemini-3.6-flash',
+  'gemini-3.5-flash',
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite'
 ];
 
+// Model Selection Options
 export const MODEL_OPTIONS = [
+
   {
-    id: 'openrouter/free',
-    label: 'Auto Free Router (recommended)'
+    id: 'gemini-3.8-flash',
+    label: 'Gemini 3.8 Flash'
   },
+
   {
-    id: 'dots-studio/dots-3-note-preview:free',
-    label: 'Dots3-Note Preview (Free)'
+    id: 'gemini-3.7-flash',
+    label: 'Gemini 3.7 Flash'
   },
+
   {
-    id: 'nvidia/nemotron-3-ultra-550b-a55b:free',
-    label: 'Nemotron 3 Ultra (Free)'
+    id: 'gemini-3.6-flash',
+    label: 'Gemini 3.6 Flash'
   },
+
   {
-    id: 'nvidia/nemotron-3.5-super-vl:free',
-    label: 'Nemotron 3.5 Super VL (Free)'
+    id: 'gemini-3.5-flash',
+    label: 'Gemini 3.5 Flash'
   },
+
   {
-    id: 'xingchen-agi/xing4.0-29b-a4b:free',
-    label: 'Xing4.0 29B A4B (Free)'
+    id: 'gemini-3.5-flash-lite',
+    label: 'Gemini 3.5 Flash Lite'
   },
+
   {
-    id: 'liquid/lfm-2.5-2.6b:free',
-    label: 'LFM2.5 2.6B (Free)'
+    id: 'gemini-3.1-flash-lite',
+    label: 'Gemini 3.1 Flash Lite'
   }
+
 ];
