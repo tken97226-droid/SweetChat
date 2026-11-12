@@ -1,4 +1,13 @@
+// ==========================================
+// SWEETCHAT - STORAGE SYSTEM
+// GOOGLE GEMINI VERSION
+// ==========================================
+
 import { DEFAULT_CHARACTERS } from './defaultCharacters.js';
+
+// ==========================================
+// LOCAL STORAGE KEYS
+// ==========================================
 
 const KEYS = {
   CHARACTERS: 'sweetchat_characters_v2',
@@ -8,7 +17,16 @@ const KEYS = {
   PROFILE: 'sweet_chat_user_profile'
 };
 
+// Gemini Default Model
+const DEFAULT_MODEL = 'gemini-3.8-flash';
+
+// Clone data safely
 const clone = value => JSON.parse(JSON.stringify(value));
+
+
+// ==========================================
+// CHARACTER STORAGE
+// ==========================================
 
 export function getStoredCharacters() {
   try {
@@ -19,6 +37,7 @@ export function getStoredCharacters() {
     const stored = raw ? JSON.parse(raw) : [];
 
     if (Array.isArray(stored) && stored.length) {
+
       const merged = stored
         .filter(c => c && c.id)
         .map(c => ({
@@ -28,10 +47,14 @@ export function getStoredCharacters() {
           memory: '',
           tags: [],
           ...c,
+
           messages: Array.isArray(c.messages)
             ? c.messages
             : []
         }));
+
+      // Add newly created default characters
+      // without deleting existing characters.
 
       for (const def of DEFAULT_CHARACTERS) {
         if (!merged.some(c => c.id === def.id)) {
@@ -40,17 +63,30 @@ export function getStoredCharacters() {
       }
 
       saveCharacters(merged);
+
       return merged;
     }
+
   } catch (error) {
-    console.warn('Character data could not be loaded:', error);
+    console.warn(
+      'Character data could not be loaded:',
+      error
+    );
   }
 
+  // Load default characters if storage is empty.
+
   const defaults = clone(DEFAULT_CHARACTERS);
+
   saveCharacters(defaults);
 
   return defaults;
 }
+
+
+// ==========================================
+// SAVE CHARACTERS
+// ==========================================
 
 export function saveCharacters(characters) {
   try {
@@ -60,19 +96,34 @@ export function saveCharacters(characters) {
     );
 
     return true;
+
   } catch (error) {
-    console.error('Could not save characters:', error);
+    console.error(
+      'Could not save characters:',
+      error
+    );
+
     return false;
   }
 }
 
+
+// ==========================================
+// ACTIVE CHARACTER
+// ==========================================
+
 export function getActiveCharacterId() {
-  return localStorage.getItem(KEYS.ACTIVE) || 'char-suzuki';
+  return (
+    localStorage.getItem(KEYS.ACTIVE) ||
+    'char-suzuki'
+  );
 }
+
 
 export function setActiveCharacterId(id) {
   localStorage.setItem(KEYS.ACTIVE, id);
 }
+
 
 export function getActiveCharacter() {
   const list = getStoredCharacters();
@@ -84,9 +135,15 @@ export function getActiveCharacter() {
   );
 }
 
+
+// ==========================================
+// GOOGLE GEMINI API KEY
+// ==========================================
+
 export function getApiKey() {
   return localStorage.getItem(KEYS.API) || '';
 }
+
 
 export function saveApiKey(key) {
   localStorage.setItem(
@@ -95,13 +152,53 @@ export function saveApiKey(key) {
   );
 }
 
+
+// ==========================================
+// GEMINI MODEL STORAGE
+// ==========================================
+
 export function getSelectedModel() {
-  return localStorage.getItem(KEYS.MODEL) || 'openrouter/free';
+
+  const savedModel = localStorage.getItem(KEYS.MODEL);
+
+  // No saved model: use Gemini default.
+
+  if (!savedModel) {
+    localStorage.setItem(
+      KEYS.MODEL,
+      DEFAULT_MODEL
+    );
+
+    return DEFAULT_MODEL;
+  }
+
+  // Convert old OpenRouter model selection
+  // into the Gemini default model.
+
+  if (!savedModel.startsWith('gemini-')) {
+    localStorage.setItem(
+      KEYS.MODEL,
+      DEFAULT_MODEL
+    );
+
+    return DEFAULT_MODEL;
+  }
+
+  return savedModel;
 }
 
+
 export function saveSelectedModel(model) {
-  localStorage.setItem(KEYS.MODEL, model);
+  localStorage.setItem(
+    KEYS.MODEL,
+    model
+  );
 }
+
+
+// ==========================================
+// USER PROFILE
+// ==========================================
 
 export function getUserProfile() {
   try {
@@ -110,10 +207,12 @@ export function getUserProfile() {
       avatar: '',
       about: '',
       gender: 'Other',
+
       ...JSON.parse(
         localStorage.getItem(KEYS.PROFILE) || '{}'
       )
     };
+
   } catch {
     return {
       name: 'User',
@@ -123,6 +222,7 @@ export function getUserProfile() {
     };
   }
 }
+
 
 export function saveUserProfile(profile) {
   localStorage.setItem(
