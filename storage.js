@@ -8,57 +8,80 @@ const STORAGE_KEYS = {
   USER_NAME: 'sweetchat_user_name_v1'
 };
 
+export const GEMINI_MODELS = [
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite'
+];
+
 export function getStoredCharacters() {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.CHARACTERS);
+
     if (raw) {
       let parsed = JSON.parse(raw);
+
       if (Array.isArray(parsed) && parsed.length > 0) {
+
         let updated = false;
 
-        // DEFAULT_CHARACTERS ထဲရှိ Character အသစ်များ (Rem, Makima) ပါမပါ စစ်ပြီး အလိုအလျောက် ပေါင်းထည့်ပေးခြင်း
         DEFAULT_CHARACTERS.forEach(defaultChar => {
+
           const exists = parsed.some(c => c.id === defaultChar.id);
+
           if (!exists) {
             parsed.push(defaultChar);
             updated = true;
           }
+
         });
 
-        if (updated) {
-          saveCharacters(parsed);
-        }
+        if (updated) saveCharacters(parsed);
+
         return parsed;
       }
     }
+
   } catch (e) {
     console.error('Failed to load stored characters:', e);
   }
 
   saveCharacters(DEFAULT_CHARACTERS);
+
   return DEFAULT_CHARACTERS;
 }
 
 export function saveCharacters(characters) {
   try {
-    localStorage.setItem(STORAGE_KEYS.CHARACTERS, JSON.stringify(characters));
+    localStorage.setItem(
+      STORAGE_KEYS.CHARACTERS,
+      JSON.stringify(characters)
+    );
   } catch (e) {
     console.error('Failed to save characters:', e);
   }
 }
 
 export function getActiveCharacterId() {
-  return localStorage.getItem(STORAGE_KEYS.ACTIVE_CHARACTER_ID) || 'char-suzuki';
+  return localStorage.getItem(
+    STORAGE_KEYS.ACTIVE_CHARACTER_ID
+  ) || 'char-suzuki';
 }
 
 export function setActiveCharacterId(id) {
-  localStorage.setItem(STORAGE_KEYS.ACTIVE_CHARACTER_ID, id);
+  localStorage.setItem(
+    STORAGE_KEYS.ACTIVE_CHARACTER_ID,
+    id
+  );
 }
 
 export function getActiveCharacter() {
   const chars = getStoredCharacters();
+
   const activeId = getActiveCharacterId();
-  return chars.find(c => c.id === activeId) || chars[0] || DEFAULT_CHARACTERS[0];
+
+  return chars.find(c => c.id === activeId)
+    || chars[0]
+    || DEFAULT_CHARACTERS[0];
 }
 
 export function getApiKey() {
@@ -66,14 +89,34 @@ export function getApiKey() {
 }
 
 export function saveApiKey(key) {
-  localStorage.setItem(STORAGE_KEYS.API_KEYS, key.trim());
+  localStorage.setItem(
+    STORAGE_KEYS.API_KEYS,
+    key.trim()
+  );
 }
 
 export function getSelectedModel() {
-  return localStorage.getItem(STORAGE_KEYS.SELECTED_MODEL) || 'meta-llama/llama-3.1-8b-instruct:free';
+
+  const saved = localStorage.getItem(
+    STORAGE_KEYS.SELECTED_MODEL
+  );
+
+  if (GEMINI_MODELS.includes(saved)) {
+    return saved;
+  }
+
+  return 'gemini-2.5-flash';
 }
 
 export function saveSelectedModel(model) {
-  localStorage.setItem(STORAGE_KEYS.SELECTED_MODEL, model);
+
+  if (!GEMINI_MODELS.includes(model)) {
+    console.warn('Unknown Gemini model:', model);
+    return;
+  }
+
+  localStorage.setItem(
+    STORAGE_KEYS.SELECTED_MODEL,
+    model
+  );
 }
-  
