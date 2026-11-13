@@ -1,63 +1,209 @@
-import {
-  DEFAULT_MODEL,
-  FREE_MODELS,
-  MODEL_COOLDOWN_MS
-} from './config.js';
+// ==========================================
+// SWEETCHAT - GEMINI AUTO FALLBACK API
+// Uses Google's Gemini Interactions API
+// ==========================================
 
-const COOLDOWN_KEY = 'sweetchat_gemini_cooldowns';
+const GEMINI_API_URL =
+  'https://generativelanguage.googleapis.com/v1beta/interactions';
 
-function getCooldowns() {
-  try {
-    return JSON.parse(localStorage.getItem(COOLDOWN_KEY) || '{}');
-  } catch {
-    return {};
-  }
-}
+// Supported Gemini models
+export const GEMINI_MODELS = [
+  'gemini-3.8-flash',
+  'gemini-3.7-flash',
+  'gemini-3.6-flash',
+  'gemini-3.5-flash',
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite'
+];
 
-function saveCooldowns(data) {
-  localStorage.setItem(COOLDOWN_KEY, JSON.stringify(data));
-}
+// Fallback order
+const FALLBACK_MODELS = [
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite',
+  'gemini-3.5-flash',
+  'gemini-3.6-flash',
+  'gemini-3.7-flash',
+  'gemini-3.8-flash'
+];
 
-function isQuotaError(status, message) {
-  const text = String(message || '').toLowerCase();
+// ==========================================
+// ERROR CHECK
+// ==========================================
 
-  return (
+function shouldFallback(status, errorMessage = '') {
+  const message = errorMessage.toLowerCase();
+
+  // Quota / rate limit
+  if (
     status === 429 ||
-    status === 500 ||
-    status === 502 ||
-    status === 503 ||
-    status === 504 ||
-    text.includes('quota') ||
-    text.includes('resource_exhausted') ||
-    text.includes('rate limit') ||
-    text.includes('too many requests')
-  );
+    message.includes('resource_exhausted') ||
+    message.includes('quota') ||
+    message.includes('rate limit') ||
+    message.includes('too many requests')
+  ) {
+    return true;
+  }
+
+  // Temporary server overload
+  if ([500, 502, 503, 504].includes(status)) {
+    return true;
+  }
+
+  // Model unavailable
+  if (
+    status === 404 ||
+    message.includes('model is not available') ||
+    message.includes('model not found') ||
+    message.includes('not available to new users') ||
+    message.includes('unsupported model')
+  ) {
+    return true;
+  }
+
+  return false;
 }
 
-function getModels(selectedModel) {
-  const first = FREE_MODELS.includes(selectedModel)
-    ? selectedModel
-    : DEFAULT_MODEL;
+// ==========================================
+// EXTRACT MESSAGE TEXT
+// ==========================================
 
-  const models = [...new Set([first, ...FREE_MODELS])];
+function getMessageText(message) {
+  if (typeof message === 'string') {
+    return message;
+  }
 
-  const cooldowns = getCooldowns();
-  const now = Date.now();
+  if (typeof message.content === 'string') {
+    return message.content;
+  }
 
-  Object.keys(cooldowns).forEach(model => {
-    if (cooldowns[model] <= now) {
-      delete cooldowns[model];
-    }
+  if (typeof message.text === 'string') {
+    return message.text;
+  }
+
+  if (Array.isArray(message.parts)) {
+    return message.parts
+      .map(part => part.text || '')
+      .join('');
+  }
+
+  return '';
+}
+
+// ==========================================
+// CONVERT CHAT HISTORY
+// ==========================================
+
+function prepareHistory(messagesHistory = []) {
+  return messagesHistory
+    .map(message => {
+      const role = message.role || 'user';
+      const content = getMessageText(message);
+
+      if (!content.trim()) {
+        return null;
+      }
+
+      // Gemini Interactions API format
+      return {
+        type:
+          role === 'user'
+            ? 'user_input'
+            : 'model_output',
+
+        content: [
+          {
+            type: 'text',
+            text: content
+          }
+        ]
+      };
+    })
+    .filter(Boolean);
+}
+
+// ==========================================
+// SEND REQUEST
+// ==========================================
+
+async function requestGemini(
+  apiKey,
+  model,
+  systemPrompt,
+  messagesHistory
+) {
+  const history = prepareHistory(messagesHistory);
+
+  if (!history.length) {
+    throw new Error('Chat history is empty.');
+  }
+
+  const response = await fetch(GEMINI_API_URL, {
+    method: 'POST',
+
+    headers: {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey
+    },
+
+    body: JSON.stringify({
+      model: model,
+
+      system_instruction: systemPrompt,
+
+      input: history,
+
+      store: false,
+
+      generation_config: {
+        temperature: 0.9,
+        max_output_tokens: 2048
+      }
+    })
   });
 
-  saveCooldowns(cooldowns);
+  const data = await response.json().catch(() => ({}));
 
-  const available = models.filter(
-    model => !cooldowns[model]
-  );
+  if (!response.ok) {
+    const errorMessage =
+      data?.error?.message ||
+      data?.message ||
+      `HTTP ${response.status}`;
 
-  return available.length ? available : models;
+    const error = new Error(errorMessage);
+
+    error.status = response.status;
+
+    throw error;
+  }
+
+  // Extract generated text
+  let answer = '';
+
+  if (typeof data.output_text === 'string') {
+    answer = data.output_text;
+  }
+
+  if (!answer && Array.isArray(data.steps)) {
+    answer = data.steps
+      .filter(step => step.type === 'model_output')
+      .flatMap(step => step.content || [])
+      .filter(item => item.type === 'text')
+      .map(item => item.text || '')
+      .join('');
+  }
+
+  if (!answer.trim()) {
+    throw new Error(
+      'Gemini returned an empty response.'
+    );
+  }
+
+  return answer.trim();
 }
+
+// ==========================================
+// MAIN CHAT FUNCTION
+// ==========================================
 
 export async function sendChatMessage(
   apiKey,
@@ -65,128 +211,75 @@ export async function sendChatMessage(
   systemPrompt,
   messagesHistory
 ) {
-  if (!apiKey) {
-    throw new Error('Gemini API Key ထည့်ပေးပါ။');
+  if (!apiKey || !apiKey.trim()) {
+    throw new Error('Please enter your Gemini API Key.');
   }
 
-  const models = getModels(selectedModel);
-  const cooldowns = getCooldowns();
+  const selected =
+    GEMINI_MODELS.includes(selectedModel)
+      ? selectedModel
+      : 'gemini-3.5-flash-lite';
+
+  // Selected model first
+  const modelsToTry = [
+    selected,
+
+    ...FALLBACK_MODELS.filter(
+      model => model !== selected
+    )
+  ];
 
   let lastError = null;
 
-  let contents = (messagesHistory || [])
-    .slice(-20)
-    .filter(msg =>
-      msg &&
-      typeof msg.content === 'string' &&
-      msg.content.trim()
-    )
-    .map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }]
-    }));
-
-  // Gemini conversation ကို user message နဲ့ စတင်စေမယ်
-  while (contents.length && contents[0].role === 'model') {
-    contents.shift();
-  }
-
-  if (!contents.length || contents[contents.length - 1].role !== 'user') {
-    throw new Error('Message မတွေ့ပါ။');
-  }
-
-  for (const model of models) {
+  for (const model of modelsToTry) {
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-        {
-          method: 'POST',
-
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey
-          },
-
-          body: JSON.stringify({
-            systemInstruction: {
-              parts: [
-                {
-                  text: systemPrompt || ''
-                }
-              ]
-            },
-
-            contents: contents,
-
-            generationConfig: {
-              temperature: 0.85,
-              maxOutputTokens: 1024
-            }
-          })
-        }
+      console.log(
+        `[SweetChat] Trying Gemini model: ${model}`
       );
 
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        const errorMessage =
-          data.error?.message || `HTTP ${response.status}`;
-
-        lastError = new Error(
-          `[${model}] ${errorMessage}`
-        );
-
-        if (isQuotaError(response.status, errorMessage)) {
-          cooldowns[model] =
-            Date.now() + MODEL_COOLDOWN_MS;
-
-          saveCooldowns(cooldowns);
-
-          continue;
-        }
-
-        if (
-          response.status === 404 ||
-          response.status === 400
-        ) {
-          continue;
-        }
-
-        throw lastError;
-      }
-
-      const reply = (
-        data.candidates?.[0]?.content?.parts || []
-      )
-        .map(part => part.text || '')
-        .join('')
-        .trim();
-
-      if (reply) {
-        delete cooldowns[model];
-        saveCooldowns(cooldowns);
-
-        return reply;
-      }
-
-      lastError = new Error(
-        `[${model}] AI Response မရရှိပါ။`
+      const answer = await requestGemini(
+        apiKey.trim(),
+        model,
+        systemPrompt,
+        messagesHistory
       );
+
+      console.log(
+        `[SweetChat] Success: ${model}`
+      );
+
+      return answer;
 
     } catch (error) {
-
-      if (error === lastError) {
-        throw error;
-      }
-
       lastError = error;
 
-      continue;
+      console.error(
+        `[SweetChat] ${model} failed:`,
+        error.message
+      );
+
+      if (
+        shouldFallback(
+          error.status,
+          error.message
+        )
+      ) {
+        console.warn(
+          `[SweetChat] Switching to next model...`
+        );
+
+        continue;
+      }
+
+      // Invalid API key or other non-retryable error
+      throw new Error(
+        `Gemini Error [${model}]: ${error.message}`
+      );
     }
   }
 
   throw new Error(
-    lastError?.message ||
-    'Gemini Models အားလုံး ယာယီအသုံးမပြုနိုင်ပါ။'
+    'All Gemini models failed. Last error: ' +
+    (lastError?.message || 'Unknown error')
   );
 }
