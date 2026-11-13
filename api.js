@@ -1,67 +1,192 @@
-import { FREE_MODELS } from './config.js';
+import {
+  DEFAULT_MODEL,
+  FREE_MODELS,
+  MODEL_COOLDOWN_MS
+} from './config.js';
 
-export async function sendChatMessage(apiKey, selectedModel, systemPrompt, messagesHistory) {
+const COOLDOWN_KEY = 'sweetchat_gemini_cooldowns';
+
+function getCooldowns() {
+  try {
+    return JSON.parse(localStorage.getItem(COOLDOWN_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function saveCooldowns(data) {
+  localStorage.setItem(COOLDOWN_KEY, JSON.stringify(data));
+}
+
+function isQuotaError(status, message) {
+  const text = String(message || '').toLowerCase();
+
+  return (
+    status === 429 ||
+    status === 500 ||
+    status === 502 ||
+    status === 503 ||
+    status === 504 ||
+    text.includes('quota') ||
+    text.includes('resource_exhausted') ||
+    text.includes('rate limit') ||
+    text.includes('too many requests')
+  );
+}
+
+function getModels(selectedModel) {
+  const first = FREE_MODELS.includes(selectedModel)
+    ? selectedModel
+    : DEFAULT_MODEL;
+
+  const models = [...new Set([first, ...FREE_MODELS])];
+
+  const cooldowns = getCooldowns();
+  const now = Date.now();
+
+  Object.keys(cooldowns).forEach(model => {
+    if (cooldowns[model] <= now) {
+      delete cooldowns[model];
+    }
+  });
+
+  saveCooldowns(cooldowns);
+
+  const available = models.filter(
+    model => !cooldowns[model]
+  );
+
+  return available.length ? available : models;
+}
+
+export async function sendChatMessage(
+  apiKey,
+  selectedModel,
+  systemPrompt,
+  messagesHistory
+) {
   if (!apiKey) {
-    throw new Error('API Key မရှိပါ။ OpenRouter API Key ကို ထည့်သွင်းပေးပါ။');
+    throw new Error('Gemini API Key ထည့်ပေးပါ။');
   }
 
-  // Token limit မကျော်အောင် နောက်ဆုံး message 20 ကိုပဲ ယူမည်
-  const recentMessages = messagesHistory.slice(-20);
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    ...recentMessages.map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'assistant',
-      content: msg.content
-    }))
-  ];
-
-  // User ရွေးထားသော model ကို အရင်စမ်းမည်၊ ထို့နောက် အခြား Free models များကို အဆင်လိုက် စမ်းမည်
-  const modelsToTry = Array.from(new Set([selectedModel, ...FREE_MODELS].filter(Boolean)));
+  const models = getModels(selectedModel);
+  const cooldowns = getCooldowns();
 
   let lastError = null;
 
-  // Model တစ်ခုပြီးတစ်ခု Loop ပတ်ပြီး စမ်းသပ်ခေါ်ယူမည်
-  for (const model of modelsToTry) {
+  let contents = (messagesHistory || [])
+    .slice(-20)
+    .filter(msg =>
+      msg &&
+      typeof msg.content === 'string' &&
+      msg.content.trim()
+    )
+    .map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }]
+    }));
+
+  // Gemini conversation ကို user message နဲ့ စတင်စေမယ်
+  while (contents.length && contents[0].role === 'model') {
+    contents.shift();
+  }
+
+  if (!contents.length || contents[contents.length - 1].role !== 'user') {
+    throw new Error('Message မတွေ့ပါ။');
+  }
+
+  for (const model of models) {
     try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'SweetChat'
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: messages,
-          temperature: 0.85,
-          max_tokens: 1024
-        })
-      });
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: 'POST',
+
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey
+          },
+
+          body: JSON.stringify({
+            systemInstruction: {
+              parts: [
+                {
+                  text: systemPrompt || ''
+                }
+              ]
+            },
+
+            contents: contents,
+
+            generationConfig: {
+              temperature: 0.85,
+              maxOutputTokens: 1024
+            }
+          })
+        }
+      );
+
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        let errText = `HTTP ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errText = errorData.error?.message || errText;
-        } catch (e) {}
-        
-        // Error ဖြစ်ပါက နောက် Model တစ်ခုသို့ ကူးရန် သိမ်းထားမည်
-        lastError = new Error(`[Model: ${model}] ${errText}`);
-        continue; // နောက် Model တစ်ခုဖြင့် ထပ်မံ ကြိုးစားမည်
+        const errorMessage =
+          data.error?.message || `HTTP ${response.status}`;
+
+        lastError = new Error(
+          `[${model}] ${errorMessage}`
+        );
+
+        if (isQuotaError(response.status, errorMessage)) {
+          cooldowns[model] =
+            Date.now() + MODEL_COOLDOWN_MS;
+
+          saveCooldowns(cooldowns);
+
+          continue;
+        }
+
+        if (
+          response.status === 404 ||
+          response.status === 400
+        ) {
+          continue;
+        }
+
+        throw lastError;
       }
 
-      const data = await response.json();
-      const replyText = data.choices?.[0]?.message?.content;
+      const reply = (
+        data.candidates?.[0]?.content?.parts || []
+      )
+        .map(part => part.text || '')
+        .join('')
+        .trim();
 
-      if (replyText) {
-        return replyText; // အောင်မြင်စွာ စာပြန်ပါက စကားပြန်ကို တန်းထုတ်ပေးမည်
+      if (reply) {
+        delete cooldowns[model];
+        saveCooldowns(cooldowns);
+
+        return reply;
       }
-    } catch (err) {
-      lastError = err;
+
+      lastError = new Error(
+        `[${model}] AI Response မရရှိပါ။`
+      );
+
+    } catch (error) {
+
+      if (error === lastError) {
+        throw error;
+      }
+
+      lastError = error;
+
+      continue;
     }
   }
 
-  // Models အားလုံး Limit ကုန် သို့မဟုတ် Error တက်မှသာ Error ပြမည်
-  throw new Error(lastError ? lastError.message : 'Model အားလုံး တုံ့ပြန်မှု မရှိပါ။');
-            }
+  throw new Error(
+    lastError?.message ||
+    'Gemini Models အားလုံး ယာယီအသုံးမပြုနိုင်ပါ။'
+  );
+}
