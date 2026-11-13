@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="my">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#17151d">
+
+    <title>Shinobu AI Chat</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- HEADER -->
+
+    <header class="topbar">
+
+        <button class="icon-btn" id="menuBtn">
+            ☰
+        </button>
+
+        <div class="character-head">
+
+            <img
+                src="./Shinobu.jpeg"
+                class="header-avatar"
+                alt="Shinobu"
+            >
+
+            <div class="character-info">
+
+                <strong>Kocho Shinobu</strong>
+
+                <span id="presence">
+                    Online
+                </span>
+
+            </div>
+
+        </div>
+
+        <button class="icon-btn" id="settingsBtn">
+            ⚙
+        </button>
+
+    </header>
+
+
+    <!-- CHAT VIEW -->
+
+    <main id="chatView" class="view active">
+
+        <section class="chat-intro">
+
+            <img
+                src="./Shinobu.jpeg"
+                class="intro-avatar"
+                alt="Shinobu"
+            >
+
+            <h1>Kocho Shinobu</h1>
+
+            <p>Demon Slayer · AI Character</p>
+
+        </section>
+
+
+        <!-- MESSAGES -->
+
+        <div
+            id="messages"
+            class="messages"
+            aria-live="polite"
+        ></div>
+
+
+        <!-- TYPING INDICATOR -->
+
+        <div id="typing" class="typing hidden">
+
+            <img
+                src="./Shinobu.jpeg"
+                class="typing-avatar"
+                alt=""
+            >
+
+            <div class="typing-bubble">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </div>
+
+            <small>Shinobu is typing...</small>
+
+        </div>
+
+
+        <!-- MESSAGE INPUT -->
+
+        <form id="chatForm" class="composer">
+
+            <textarea
+                id="messageInput"
+                rows="1"
+                maxlength="3000"
+                placeholder="Message Shinobu..."
+            ></textarea>
+
+            <button
+                class="send-btn"
+                type="submit"
+                aria-label="Send message"
+            >
+                ➤
+            </button>
+
+        </form>
+
+    </main>
+
+
+    <!-- USER PROFILE -->
+
+    <main id="profileView" class="view page-view">
+
+        <h2>My Profile</h2>
+
+        <section class="profile-card">
+
+            <label class="profile-avatar-wrap">
+
+                <div id="profileAvatar" class="avatar">
+                    🙂
+                </div>
+
+                <input
+                    id="avatarUpload"
+                    type="file"
+                    accept="image/*"
+                    hidden
+                >
+
+                <span class="edit-badge">✎</span>
+
+            </label>
+
+            <h2 id="profileNamePreview">
+                Guest User
+            </h2>
+
+            <p id="profileHandlePreview">
+                @guest
+            </p>
+
+            <p id="profileBioPreview">
+                About Me
+            </p>
+
+            <div class="stats">
+
+                <div>
+                    <b id="messageCount">0</b>
+                    <span>Messages</span>
+                </div>
+
+                <div>
+                    <b id="chatCount">1</b>
+                    <span>Chats</span>
+                </div>
+
+                <div>
+                    <b>🦋</b>
+                    <span>Favorite</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <form id="profileForm" class="settings-card">
+
+            <h3>Edit Profile</h3>
+
+            <label>
+                Display Name
+
+                <input
+                    id="displayName"
+                    maxlength="32"
+                    placeholder="Your name"
+                >
+            </label>
+
+            <label>
+                Username
+
+                <input
+                    id="username"
+                    maxlength="24"
+                    placeholder="username"
+                >
+            </label>
+
+            <label>
+                Bio
+
+                <textarea
+                    id="bio"
+                    maxlength="160"
+                    rows="3"
+                    placeholder="About me..."
+                ></textarea>
+            </label>
+
+            <button class="primary-btn" type="submit">
+                Save Profile
+            </button>
+
+        </form>
+
+    </main>
+
+
+    <!-- SETTINGS -->
+
+    <main id="settingsView" class="view page-view">
+
+        <h2>Settings</h2>
+
+
+        <!-- APPEARANCE -->
+
+        <section class="settings-card">
+
+            <h3>Appearance</h3>
+
+            <label>
+                Theme
+
+                <select id="themeSelect">
+
+                    <option value="dark">Dark Mode</option>
+
+                    <option value="light">Light Mode</option>
+
+                    <option value="amoled">AMOLED Black</option>
+
+                </select>
+
+            </label>
+
+
+            <label>
+                Accent Color
+
+                <input
+                    id="accentPicker"
+                    type="color"
+                    value="#a78bfa"
+                >
+
+            </label>
+
+
+            <label>
+                Chat Wallpaper
+
+                <input
+                    id="wallpaperPicker"
+                    type="color"
+                    value="#1c1a23"
+                >
+
+            </label>
+
+
+            <label>
+                Font Size
+
+                <input
+                    id="fontSize"
+                    type="range"
+                    min="13"
+                    max="20"
+                    value="16"
+                >
+
+                <span id="fontSizeValue">16px</span>
+
+            </label>
+
+        </section>
+
+
+        <!-- API SETTINGS -->
+
+        <section class="settings-card">
+
+            <h3>Gemini API Settings</h3>
+
+            <p class="muted">
+                Enter your Google AI Studio API Key.
+            </p>
+
+            <label>
+                API Key
+
+                <input
+                    id="apiKey"
+                    type="password"
+                    placeholder="Gemini API Key"
+                    autocomplete="off"
+                >
+
+            </label>
+
+            <button
+                class="primary-btn"
+                id="saveKeyBtn"
+                type="button"
+            >
+                Save API Key
+            </button>
+
+
+            <label>
+                Preferred Model
+
+                <select id="modelSelect">
+
+                    <option value="gemini-3.8-flash">
+                        Gemini 3.8 Flash
+                    </option>
+
+                    <option value="gemini-3.6-flash">
+                        Gemini 3.6 Flash
+                    </option>
+
+                    <option value="gemini-2.5-flash">
+                        Gemini 2.5 Flash
+                    </option>
+
+                    <option value="gemini-2.5-flash-lite">
+                        Gemini 2.5 Flash-Lite
+                    </option>
+
+                </select>
+
+            </label>
+
+            <p id="modelStatus" class="muted">
+                Model Fallback: ON
+            </p>
+
+        </section>
+
+
+        <!-- CHARACTER ACTIVITY -->
+
+        <section class="settings-card">
+
+            <h3>Character Activity</h3>
+
+            <label class="check-row">
+
+                <input
+                    id="proactiveToggle"
+                    type="checkbox"
+                >
+
+                Allow Shinobu to start conversations.
+
+            </label>
+
+        </section>
+
+
+        <!-- DATA -->
+
+        <section class="settings-card">
+
+            <h3>Data Management</h3>
+
+            <button
+                class="secondary-btn"
+                id="exportBtn"
+                type="button"
+            >
+                Export Chat
+            </button>
+
+            <button
+                class="secondary-btn"
+                id="clearBtn"
+                type="button"
+            >
+                Clear Chat History
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <!-- BOTTOM NAVIGATION -->
+
+    <nav class="bottom-nav">
+
+        <button
+            class="nav-item selected"
+            data-view="chatView"
+        >
+            💬
+            <span>Chat</span>
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-view="profileView"
+        >
+            👤
+            <span>Profile</span>
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-view="settingsView"
+        >
+            ⚙️
+            <span>Settings</span>
+        </button>
+
+    </nav>
+
+</div>
+
+
+<!-- TOAST -->
+
+<div id="toast" class="toast"></div>
+
+
+<!-- JAVASCRIPT -->
+
+<script src="app.js"></script>
+
+</body>
+  </html>
