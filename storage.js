@@ -1,118 +1,33 @@
-import { DEFAULT_CHARACTERS } from './defaultCharacters.js';
-
-const STORAGE_KEYS = {
-  CHARACTERS: 'sweetchat_characters_v1',
-  ACTIVE_CHARACTER_ID: 'sweetchat_active_char_id_v1',
-  API_KEYS: 'sweetchat_api_keys_v1',
-  SELECTED_MODEL: 'sweetchat_selected_model_v1',
-  USER_NAME: 'sweetchat_user_name_v1'
-};
-
-export const GEMINI_MODELS = [
-  'gemini-2.5-flash',
-  'gemini-2.5-flash-lite'
+export const SUPPORTED_MODELS = [
+  'gemini-3.8-flash',
+  'gemini-3.7-flash',
+  'gemini-3.6-flash',
+  'gemini-3.5-flash',
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite'
 ];
 
-export function getStoredCharacters() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.CHARACTERS);
-
-    if (raw) {
-      let parsed = JSON.parse(raw);
-
-      if (Array.isArray(parsed) && parsed.length > 0) {
-
-        let updated = false;
-
-        DEFAULT_CHARACTERS.forEach(defaultChar => {
-
-          const exists = parsed.some(c => c.id === defaultChar.id);
-
-          if (!exists) {
-            parsed.push(defaultChar);
-            updated = true;
-          }
-
-        });
-
-        if (updated) saveCharacters(parsed);
-
-        return parsed;
-      }
-    }
-
-  } catch (e) {
-    console.error('Failed to load stored characters:', e);
-  }
-
-  saveCharacters(DEFAULT_CHARACTERS);
-
-  return DEFAULT_CHARACTERS;
-}
-
-export function saveCharacters(characters) {
-  try {
-    localStorage.setItem(
-      STORAGE_KEYS.CHARACTERS,
-      JSON.stringify(characters)
-    );
-  } catch (e) {
-    console.error('Failed to save characters:', e);
-  }
-}
-
-export function getActiveCharacterId() {
-  return localStorage.getItem(
-    STORAGE_KEYS.ACTIVE_CHARACTER_ID
-  ) || 'char-suzuki';
-}
-
-export function setActiveCharacterId(id) {
-  localStorage.setItem(
-    STORAGE_KEYS.ACTIVE_CHARACTER_ID,
-    id
-  );
-}
-
-export function getActiveCharacter() {
-  const chars = getStoredCharacters();
-
-  const activeId = getActiveCharacterId();
-
-  return chars.find(c => c.id === activeId)
-    || chars[0]
-    || DEFAULT_CHARACTERS[0];
-}
-
-export function getApiKey() {
-  return localStorage.getItem(STORAGE_KEYS.API_KEYS) || '';
-}
-
-export function saveApiKey(key) {
-  localStorage.setItem(
-    STORAGE_KEYS.API_KEYS,
-    key.trim()
-  );
-}
-
 export function getSelectedModel() {
-
   const saved = localStorage.getItem(
     STORAGE_KEYS.SELECTED_MODEL
   );
 
-  if (GEMINI_MODELS.includes(saved)) {
+  if (SUPPORTED_MODELS.includes(saved)) {
     return saved;
   }
 
-  return 'gemini-2.5-flash';
+  // Migrate old model IDs
+  localStorage.setItem(
+    STORAGE_KEYS.SELECTED_MODEL,
+    'gemini-3.5-flash-lite'
+  );
+
+  return 'gemini-3.5-flash-lite';
 }
 
 export function saveSelectedModel(model) {
-
-  if (!GEMINI_MODELS.includes(model)) {
-    console.warn('Unknown Gemini model:', model);
-    return;
+  if (!SUPPORTED_MODELS.includes(model)) {
+    throw new Error('Unsupported Gemini model: ' + model);
   }
 
   localStorage.setItem(
