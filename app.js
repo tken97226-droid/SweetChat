@@ -44,7 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (savedKey && apiKeyInput) apiKeyInput.value = savedKey;
 
   const savedModel = getSelectedModel();
-  if (savedModel && modelSelect) modelSelect.value = savedModel;
+  if (modelSelect) {
+    const hasSavedModel = Array.from(modelSelect.options).some(option => option.value === savedModel);
+    modelSelect.value = hasSavedModel ? savedModel : modelSelect.options[0]?.value;
+    if (modelSelect.value) saveSelectedModel(modelSelect.value);
+  }
 
   renderCharacterList();
   setupNavigation();
@@ -54,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveKeyBtn.addEventListener('click', () => {
       const key = apiKeyInput.value.trim();
       saveApiKey(key);
-      alert('API Key သိမ်းဆည်းပြီးပါပြီ!');
+      alert('Gemini API Key သိမ်းဆည်းပြီးပါပြီ!');
     });
   }
 
@@ -216,7 +220,7 @@ async function handleSendMessage() {
 
   const apiKey = getApiKey();
   if (!apiKey) {
-    alert('ကျေးဇူးပြု၍ Settings ထဲတွင် OpenRouter API Key ကို အရင်ထည့်သွင်းပေးပါ!');
+    alert('ကျေးဇူးပြု၍ Settings ထဲတွင် Google AI Studio Gemini API Key ကို အရင်ထည့်သွင်းပေးပါ!');
     return;
   }
 
@@ -269,3 +273,4 @@ async function handleSendMessage() {
     appendMessageUI('model', ` Error: ${error.message}`);
   }
   }
+}
