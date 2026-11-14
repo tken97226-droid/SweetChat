@@ -4,74 +4,259 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b0b12">
+  <meta name="description" content="SweetChat - Anime Character AI Chat">
   <title>SweetChat — Anime Character AI</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
   <div class="app-shell">
+
+    <!-- SIDEBAR -->
     <aside class="sidebar">
-      <div class="brand"><span class="brand-mark">✦</span><span>SweetChat</span></div>
-      <button class="new-chat" id="newChatBtn">＋ New chat</button>
+
+      <div class="brand">
+        <span class="brand-mark">✦</span>
+        <span>SweetChat</span>
+      </div>
+
+      <button class="new-chat" id="newChatBtn">
+        ＋ New chat
+      </button>
+
       <div class="side-label">YOUR CHARACTERS</div>
+
       <div id="characterList" class="character-list"></div>
+
       <div class="sidebar-bottom">
-        <button class="settings-link" id="settingsBtn">⚙ Settings</button>
+        <button class="settings-link" id="settingsBtn">
+          ⚙ Settings
+        </button>
+
         <p>Made for your stories ✨</p>
       </div>
+
     </aside>
 
+
+    <!-- MAIN PANEL -->
     <main class="main-panel">
+
+      <!-- TOP BAR -->
       <header class="topbar">
-        <div class="mobile-brand">✦ SweetChat</div>
-        <div class="chat-person">
-          <div class="avatar small" id="headerAvatar">S</div>
-          <div><strong id="headerName">Sakura</strong><span id="headerStatus">Your anime companion</span></div>
+
+        <div class="mobile-brand">
+          ✦ SweetChat
         </div>
-        <button class="icon-btn" id="openSettings" aria-label="Settings">⚙</button>
+
+        <div class="chat-person">
+
+          <div class="avatar small" id="headerAvatar">
+            S
+          </div>
+
+          <div>
+            <strong id="headerName">Sakura</strong>
+            <span id="headerStatus">Your anime companion</span>
+          </div>
+
+        </div>
+
+        <button
+          class="icon-btn"
+          id="openSettings"
+          aria-label="Settings"
+        >
+          ⚙
+        </button>
+
       </header>
 
+
+      <!-- CHAT AREA -->
       <section class="chat-area" id="chatArea">
+
         <div class="welcome" id="welcome">
-          <div class="welcome-orb">✧</div>
-          <h1>Welcome to <span>SweetChat</span></h1>
-          <p>Choose a character and start a new story together.</p>
+
+          <div class="welcome-orb">
+            ✧
+          </div>
+
+          <h1>
+            Welcome to <span>SweetChat</span>
+          </h1>
+
+          <p>
+            Choose a character and start a new story together.
+          </p>
+
         </div>
+
         <div class="messages" id="messages"></div>
+
       </section>
 
+
+      <!-- MESSAGE INPUT -->
       <form class="composer" id="chatForm">
-        <textarea id="messageInput" rows="1" placeholder="Message your character..." aria-label="Message"></textarea>
-        <button type="submit" id="sendBtn" aria-label="Send message">➤</button>
+
+        <textarea
+          id="messageInput"
+          rows="1"
+          placeholder="Message your character..."
+          aria-label="Message"
+        ></textarea>
+
+        <button
+          type="submit"
+          id="sendBtn"
+          aria-label="Send message"
+        >
+          ➤
+        </button>
+
       </form>
-      <div class="disclaimer">AI can make mistakes. Keep your API key private.</div>
+
+      <div class="disclaimer">
+        AI can make mistakes. Keep your API key private.
+      </div>
+
     </main>
+
   </div>
 
+
+  <!-- SETTINGS DIALOG -->
   <dialog id="settingsDialog">
+
     <form method="dialog" class="dialog-head">
-      <div><span class="eyebrow">PREFERENCES</span><h2>Settings</h2></div>
-      <button class="close-btn" aria-label="Close">✕</button>
-    </form>
-    <div class="setting-group">
-      <label for="apiKeyInput">Gemini API Key</label>
-      <input id="apiKeyInput" type="password" placeholder="Paste your API key here" autocomplete="off">
-      <small>Your key is stored in this browser only. Do not share this site with the key saved.</small>
-      <div class="setting-actions">
-        <button type="button" class="primary-btn" id="saveKeyBtn">Save API Key</button>
-        <button type="button" class="ghost-btn" id="clearKeyBtn">Remove key</button>
+
+      <div>
+        <span class="eyebrow">PREFERENCES</span>
+        <h2>Settings</h2>
       </div>
-      <div id="keyStatus" class="key-status"></div>
-    </div>
+
+      <button
+        class="close-btn"
+        aria-label="Close"
+      >
+        ✕
+      </button>
+
+    </form>
+
+
+    <!-- API KEY SETTINGS -->
     <div class="setting-group">
-      <label for="modelSelect">Gemini model</label>
-      <select id="modelSelect">
-        <option value="gemini-3.8-flash">Gemini 3.8 Flash</option>
-        <option value="gemini-3.7-flash">Gemini 3.7 Flash</option>
-      </select>
-      <small>Model availability may depend on your Google AI Studio account and API access.</small>
+
+      <label for="apiKeyInput">
+        Gemini API Key
+      </label>
+
+      <input
+        id="apiKeyInput"
+        type="password"
+        placeholder="Paste your API key here"
+        autocomplete="off"
+      >
+
+      <small>
+        Your key is stored in this browser only.
+        Do not share this site with the key saved.
+      </small>
+
+      <div class="setting-actions">
+
+        <button
+          type="button"
+          class="primary-btn"
+          id="saveKeyBtn"
+        >
+          Save API Key
+        </button>
+
+        <button
+          type="button"
+          class="ghost-btn"
+          id="clearKeyBtn"
+        >
+          Remove key
+        </button>
+
+      </div>
+
+      <div id="keyStatus" class="key-status"></div>
+
     </div>
-    <div class="dialog-foot">SweetChat • Browser-based personal project</div>
+
+
+    <!-- MODEL SELECTION -->
+    <div class="setting-group">
+
+      <label for="modelSelect">
+        AI Model
+      </label>
+
+      <select id="modelSelect">
+
+        <optgroup label="Gemini Flash Models">
+
+          <option value="gemini-3.8-flash">
+            Gemini 3.8 Flash
+          </option>
+
+          <option value="gemini-3.6-flash">
+            Gemini 3.6 Flash
+          </option>
+
+          <option value="gemini-3.5-flash-lite">
+            Gemini 3.5 Flash-Lite
+          </option>
+
+        </optgroup>
+
+
+        <optgroup label="Gemini Previous Generation">
+
+          <option value="gemini-2.5-flash">
+            Gemini 2.5 Flash
+          </option>
+
+        </optgroup>
+
+
+        <optgroup label="Gemma 4 Open Models">
+
+          <option value="gemma-4-31b-it">
+            Gemma 4 31B IT
+          </option>
+
+          <option value="gemma-4-26b-a4b-it">
+            Gemma 4 26B MoE IT
+          </option>
+
+        </optgroup>
+
+      </select>
+
+      <small>
+        Model access and availability depend on your
+        Google AI Studio account and API limits.
+      </small>
+
+    </div>
+
+
+    <div class="dialog-foot">
+      SweetChat • Browser-based personal project
+    </div>
+
   </dialog>
+
+
+  <!-- JAVASCRIPT -->
   <script src="app.js"></script>
+
 </body>
 </html>
